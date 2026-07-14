@@ -48,13 +48,13 @@ function lessonCss(): string {
   margin: 1in 1.4in 0.85in;
   @bottom-center {
     content: counter(page);
-    font-family: "Print Literata", Georgia, serif;
+    font-family: "Print Literata", "Print Hebrew", "Print Math", "Print Symbols", "Print Symbols 2", serif;
     font-size: 9pt;
     color: #6b6456;
   }
   @bottom-right {
     content: "agelesswisdom.school";
-    font-family: "Print Literata", Georgia, serif;
+    font-family: "Print Literata", "Print Hebrew", "Print Math", "Print Symbols", "Print Symbols 2", serif;
     font-size: 8pt;
     letter-spacing: 0.02em;
     color: #9a927f;
@@ -65,7 +65,7 @@ function lessonCss(): string {
 }
 html {
   color: #211f1a;
-  font-family: "Print Literata", Georgia, "Times New Roman", serif;
+  font-family: "Print Literata", "Print Hebrew", "Print Math", "Print Symbols", "Print Symbols 2", serif;
   font-size: 11.5pt;
   line-height: 1.5;
 }

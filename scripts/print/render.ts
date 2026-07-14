@@ -108,7 +108,7 @@ export function inlineMarkdown(value: string): string {
     .replace(/`([^`]+)`/g, "<code>$1</code>");
   value = value.replace(
     /[♈♉♊♋♌♍♎♏♐♑♒♓☉☾☿♀♂♃♄]/g,
-    (symbol) => `<span class="symbol">${symbol}\uFE0E</span>`,
+    (symbol) => `<span class="symbol">${symbol}</span>`,
   );
 
   return value.replace(/\u0000(\d+)\u0000/g, (_match, index: string) => {
@@ -330,29 +330,107 @@ export function mdxToHtml(markdown: string): string {
   return out.join("\n");
 }
 
-/** @font-face blocks for the vendored serif + the vendored symbol face
- *  (Noto Sans Symbols, OFL — covers the zodiac ♈–♓ and planet ☉☾☿♀♂♃♄
- *  glyphs). Both are committed so the build is identical on macOS and the
- *  Linux CI runner. */
+/** @font-face blocks for every script the lessons use. The governing rule:
+ *  EVERY glyph in the content must resolve to a vendored, OFL-licensed, STATIC
+ *  font that is committed to the repo — so the PDF embeds only fonts we may
+ *  redistribute, renders identically on macOS and the Linux CI runner, and
+ *  never silently falls back to a system font (Times/Hiragino/…) or embeds a
+ *  variable font as Type 3 (which Chrome does, and POD preflights flag).
+ *
+ *  The lessons mix Latin, Greek (Θ = alchemical Salt) and polytonic Greek (ὕ),
+ *  Hebrew (many lessons), astrological + alchemical symbols, and math operators
+ *  (∇ = alchemical Water). Each gets an explicit face here. Two subtleties make
+ *  it robust rather than whack-a-mole:
+ *    • Greek rides the same "Print Literata" family via unicode-range so it
+ *      stays visually seamless — but the ranges MUST be disjoint from the
+ *      polytonic faces, because a face that DECLARES a range it doesn't actually
+ *      cover blocks fallback for those glyphs (that silently dropped ὕ once).
+ *    • Coverage of unwrapped symbols is guaranteed by putting the symbol
+ *      families in the body font stack (see lessons.ts / build.ts), not by the
+ *      .symbol wrapper alone. The wrapper only handles text-vs-emoji presentation.
+ *  Verified after each render with `pdffonts` (expect zero Type 3, zero system
+ *  fonts) and `pdfminer` (no glyph drawn from an un-vendored font). */
 export function fontFaceCss(): string {
-  let literata = path.join(APP_DIR, "Literata.woff2");
-  let literataItalic = path.join(APP_DIR, "Literata-Italic.woff2");
-  let symbol = path.join(FONTS_DIR, "NotoSansSymbols-Regular.ttf");
+  let f = (name: string) => path.join(FONTS_DIR, name);
   return `
 @font-face {
   font-family: "Print Symbols";
-  src: url("${symbol}") format("truetype");
+  src: url("${f("NotoSansSymbols-Regular.ttf")}") format("truetype");
+}
+/* Misc symbols the primary Noto Sans Symbols lacks (☉ SUN, alchemical block
+   🜁🜂🜃…) — a second FAMILY, reached by cross-family fallback when the first
+   genuinely lacks the glyph. */
+@font-face {
+  font-family: "Print Symbols 2";
+  src: url("${f("NotoSansSymbols2.woff2")}") format("woff2");
+}
+/* Math operators (∇ = alchemical Water sign, △▽) — Noto Sans Math. */
+@font-face {
+  font-family: "Print Math";
+  src: url("${f("NotoSansMath-Regular.woff2")}") format("woff2");
+}
+/* Hebrew — Noto Serif Hebrew, matched to Literata's serif register. */
+@font-face {
+  font-family: "Print Hebrew";
+  src: url("${f("NotoSerifHebrew-Regular.woff2")}") format("woff2");
+  font-weight: 400;
+}
+@font-face {
+  font-family: "Print Hebrew";
+  src: url("${f("NotoSerifHebrew-SemiBold.woff2")}") format("woff2");
+  font-weight: 600;
+}
+/* Latin — static Literata instances (NOT the variable src/app copy: Chrome
+   embeds a variable font as Type 3). */
+@font-face {
+  font-family: "Print Literata";
+  src: url("${f("Literata-Regular.woff2")}") format("woff2");
+  font-weight: 400;
 }
 @font-face {
   font-family: "Print Literata";
-  src: url("${literata}") format("woff2");
-  font-weight: 400 800;
-}
-@font-face {
-  font-family: "Print Literata";
-  src: url("${literataItalic}") format("woff2");
+  src: url("${f("Literata-Italic.woff2")}") format("woff2");
   font-style: italic;
-  font-weight: 400 800;
+  font-weight: 400;
+}
+@font-face {
+  font-family: "Print Literata";
+  src: url("${f("Literata-SemiBold.woff2")}") format("woff2");
+  font-weight: 600;
+}
+@font-face {
+  font-family: "Print Literata";
+  src: url("${f("Literata-Bold.woff2")}") format("woff2");
+  font-weight: 700;
+}
+/* Greek (Θ) — same family via unicode-range. Range must be disjoint from the
+   polytonic faces below. */
+@font-face {
+  font-family: "Print Literata";
+  src: url("${f("Literata-Greek.woff2")}") format("woff2");
+  font-weight: 400;
+  unicode-range: U+0370-03FF;
+}
+@font-face {
+  font-family: "Print Literata";
+  src: url("${f("Literata-Greek-Italic.woff2")}") format("woff2");
+  font-style: italic;
+  font-weight: 400;
+  unicode-range: U+0370-03FF;
+}
+/* Polytonic Greek (Greek Extended, e.g. ὕ). */
+@font-face {
+  font-family: "Print Literata";
+  src: url("${f("Literata-GreekExt.woff2")}") format("woff2");
+  font-weight: 400;
+  unicode-range: U+1F00-1FFF;
+}
+@font-face {
+  font-family: "Print Literata";
+  src: url("${f("Literata-GreekExt-Italic.woff2")}") format("woff2");
+  font-style: italic;
+  font-weight: 400;
+  unicode-range: U+1F00-1FFF;
 }`.trim();
 }
 
@@ -447,7 +525,9 @@ figcaption {
   vertical-align: -0.12em;
 }
 .symbol {
-  font-family: "Print Symbols", "Times New Roman", serif;
+  /* Second symbol family (☉ etc.) via cross-family fallback; no system font in
+     the chain so a wrapped glyph can never reach an unembedded/unlicensed face. */
+  font-family: "Print Symbols", "Print Symbols 2", "Print Literata";
   font-variant-emoji: text;
 }
 .tarot-groups {
