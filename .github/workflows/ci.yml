@@ -1,0 +1,26 @@
+# Verifies that the site typechecks and builds. Runs for PRs and for pushes
+# to any branch except main (main is covered by the deploy workflow).
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches-ignore:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx tsc --noEmit
+      # Generate the per-lesson PDFs (headless Chrome, pre-installed on the
+      # runner) so the build matches production and PDF-generation breakage is
+      # caught in CI rather than at deploy.
+      - run: npm run pdf:lessons
+      - run: npm run build

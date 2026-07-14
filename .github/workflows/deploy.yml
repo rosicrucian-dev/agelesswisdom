@@ -1,0 +1,51 @@
+# Builds the static export and deploys it to GitHub Pages on every push to
+# main. The site is served from the custom apex domain agelesswisdom.school
+# (see public/CNAME), so it lives at the site root and BASE_PATH stays unset.
+# If the site ever moves back to a project page (username.github.io/<repo>),
+# restore `BASE_PATH: /${{ github.event.repository.name }}` on the build step.
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      # Per-lesson PDFs are derived from the MDX and generated here (not
+      # committed) so they ship in the static export. Uses headless Chrome,
+      # which is pre-installed on the GitHub ubuntu runner (google-chrome on
+      # PATH; override with CHROME_BIN if needed).
+      - run: npm run pdf:lessons
+      - run: npm run build
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

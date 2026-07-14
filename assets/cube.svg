@@ -1,0 +1,16 @@
+<!-- The School of Ageless Wisdom cube — canonical vector source for all
+     icon assets. Same isometric geometry as the sister project's cube
+     (../bota-toolbox/assets/cube.svg), recolored to a grayscale scheme:
+     a Tailwind zinc ramp (light -> dark) — zinc-50 lit top, zinc-200
+     left, zinc-400 right. Consumed by scripts/gen-favicon.ts,
+     gen-appicon.ts and gen-og.ts. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-102 -2 204 235">
+  <g stroke="#000000" stroke-width="3.2" stroke-linejoin="round">
+    <!-- top face (lightest) — zinc-50 -->
+    <polygon points="0,0 100,57.735 0,115.47 -100,57.735" fill="#FAFAFB" />
+    <!-- left face (middle) — zinc-200 -->
+    <polygon points="-100,57.735 0,115.47 0,230.94 -100,173.205" fill="#E4E4E7" />
+    <!-- right face (darkest) — zinc-400 -->
+    <polygon points="100,57.735 0,115.47 0,230.94 100,173.205" fill="#9F9FA9" />
+  </g>
+</svg>

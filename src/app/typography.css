@@ -1,0 +1,391 @@
+.prose {
+  color: var(--color-gray-700);
+  /* The reading column is set in Literata (a book serif) while the app
+     chrome — sidebar, nav, eyebrow, buttons — stays in Inter. This scopes
+     the serif to "the text" and lets the interface recede. Optical sizing
+     lets the variable font adapt letterforms to the reading size. */
+  font-family: var(--font-serif);
+  font-optical-sizing: auto;
+  /* Long-form reading in a book serif, sized for comfort at this measure.
+     A notch smaller on phones (Literata runs large on a narrow column);
+     the full desktop size returns at the sm breakpoint (≥40rem). */
+  /* Base = mobile (mobile-first). Edit these to affect phones. */
+  font-size: 1.15rem;
+  line-height: 1.55;
+
+  /* sm and up (≥40rem = tablet/desktop) overrides the mobile base. */
+  @variant sm {
+    font-size: 1.25rem;
+    line-height: 1.65;
+  }
+  /* Literata is a variable font (weight axis 200–900). This nudges the body a
+     touch above the 400 default for more presence without reading as bold.
+     Tune this single number to taste; strong/links/headings set their own
+     heavier weights below and are unaffected. */
+  font-weight: 450;
+
+  @variant dark {
+    color: var(--color-gray-400);
+  }
+
+  /* Code stays in the UI sans; a serif monospace context reads as a mistake. */
+  code,
+  pre,
+  pre > code {
+    font-family: var(--font-sans);
+  }
+
+  * + * {
+    margin-top: --spacing(6);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: var(--color-gray-950);
+
+    @variant dark {
+      color: var(--color-white);
+    }
+  }
+
+  h1 {
+    font-size: var(--text-3xl);
+    line-height: var(--text-3xl--line-height);
+    letter-spacing: -0.025em;
+  }
+
+  h2 {
+    font-size: var(--text-xl);
+    line-height: --spacing(7);
+    letter-spacing: -0.025em;
+    font-weight: var(--font-weight-medium);
+    margin-top: --spacing(15);
+  }
+
+  h3 {
+    font-size: var(--text-lg);
+    line-height: --spacing(7);
+    letter-spacing: -0.025em;
+    font-weight: var(--font-weight-medium);
+    margin-top: --spacing(10);
+  }
+
+  a {
+    color: var(--color-gray-950);
+    font-weight: var(--font-weight-semibold);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: --alpha(var(--color-gray-950) / 25%);
+
+    @variant hover {
+      text-decoration-color: --alpha(var(--color-gray-950) / 50%);
+    }
+
+    @variant dark {
+      color: var(--color-white);
+      text-decoration-color: --alpha(var(--color-white) / 25%);
+
+      @variant hover {
+        text-decoration-color: --alpha(var(--color-white) / 50%);
+      }
+    }
+  }
+
+  ol {
+    list-style-type: decimal;
+    margin-left: --spacing(6);
+
+    li {
+      padding-left: --spacing(2.5);
+
+      &::marker {
+        color: var(--color-gray-700);
+
+        @variant dark {
+          color: var(--color-gray-400);
+        }
+      }
+    }
+  }
+
+  ul {
+    list-style-type: disc;
+    margin-left: --spacing(6);
+
+    li {
+      padding-left: --spacing(2.5);
+
+      &::marker {
+        color: var(--color-gray-300);
+
+        @variant dark {
+          color: var(--color-gray-700);
+        }
+      }
+    }
+  }
+
+  /* List-item spacing keys off CommonMark's tight/loose distinction. A tight
+     list (no blank line between items in the source, so each item is bare
+     text) holds short, single-line items — the generic "* + *" flow spacing
+     reads as too much padding there, so items sit close together. A loose
+     list (a blank line between items → each item wrapped in its own <p>)
+     signals paragraph-length items like the Pattern on the Trestleboard, and
+     keeps the roomier separation. Authors choose per list: no blank lines =
+     compact, blank lines = roomy. */
+  li + li {
+    margin-top: --spacing(2);
+  }
+
+  li:has(> p) + li {
+    margin-top: --spacing(6);
+  }
+
+  pre {
+    border-radius: var(--radius-lg);
+    padding: --spacing(3) --spacing(4);
+    overflow-x: auto;
+
+    > code {
+      display: block;
+      font-size: var(--text-sm);
+      line-height: --spacing(5);
+      color: var(--color-white);
+    }
+
+    &::selection {
+      background-color: --alpha(var(--color-white) / 15%);
+    }
+  }
+
+  img {
+    border-radius: var(--radius-lg);
+    border: --alpha(var(--color-gray-950) / 10%) solid 1px;
+
+    @variant dark {
+      border: --alpha(var(--color-white) / 10%) solid 1px;
+    }
+  }
+
+  strong {
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-gray-950);
+
+    @variant dark {
+      color: var(--color-white);
+    }
+  }
+
+  blockquote {
+    border-left: 2px solid --alpha(var(--color-gray-950) / 20%);
+    padding-left: --spacing(5);
+    font-style: italic;
+    color: var(--color-gray-600);
+
+    @variant dark {
+      border-left-color: --alpha(var(--color-white) / 20%);
+      color: var(--color-gray-400);
+    }
+  }
+
+  hr {
+    border: 0;
+    border-top: 1px solid --alpha(var(--color-gray-950) / 10%);
+    margin-top: --spacing(10);
+    margin-bottom: --spacing(10);
+
+    @variant dark {
+      border-top-color: --alpha(var(--color-white) / 10%);
+    }
+  }
+
+  /* Lesson tables (correspondences, tableaus) can be wide; let them scroll. */
+  table {
+    display: block;
+    overflow-x: auto;
+    border-collapse: collapse;
+    font-size: var(--text-sm);
+    line-height: --spacing(6);
+
+    th,
+    td {
+      border: 1px solid --alpha(var(--color-gray-950) / 10%);
+      padding: --spacing(1.5) --spacing(3);
+      text-align: left;
+      vertical-align: top;
+
+      @variant dark {
+        border-color: --alpha(var(--color-white) / 10%);
+      }
+    }
+
+    /* Most lesson tables are data grids (number tableaus, letter/value
+       correspondences, magic squares) with NO real column header — but
+       Markdown always renders the first row as <th>, and the browser's
+       user-agent stylesheet bolds <th> by default. Force th to match td
+       (normal weight, inherited color); a header is emphasized only when
+       its cells are explicitly bolded (**Header**), which the handful of
+       genuine-header tables do. This keeps data-grid first rows from
+       reading as headers. */
+    th {
+      font-weight: inherit;
+    }
+  }
+
+  code:where(:not(pre > code)) {
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-gray-950);
+
+    @variant dark {
+      color: var(--color-white);
+    }
+
+    &::before,
+    &::after {
+      content: "`";
+    }
+  }
+
+  /* Footnotes (GFM) are collected into a section at the end of the lesson:
+     a full-width rule, a small label, then the notes as muted hint text.
+     Each note carries a ↩ link back to its citation. */
+  [data-footnotes] {
+    margin-top: --spacing(12);
+    border-top: 1px solid --alpha(var(--color-gray-950) / 10%);
+    padding-top: --spacing(6);
+    font-size: var(--text-sm);
+    line-height: --spacing(6);
+    color: var(--color-gray-600);
+
+    @variant dark {
+      border-top-color: --alpha(var(--color-white) / 10%);
+      color: var(--color-gray-400);
+    }
+
+    /* remark-gfm renders the "Footnotes" <h2> as sr-only; the rule above
+       is the visual separator, so no heading styling is needed here. */
+
+    ol {
+      padding-left: --spacing(5);
+      list-style: decimal;
+    }
+
+    li {
+      margin-top: --spacing(2);
+      scroll-margin-top: --spacing(20);
+
+      &::marker {
+        color: var(--color-gray-400);
+      }
+    }
+
+    /* keep the note body and its ↩ backref on the marker's line */
+    li p {
+      display: inline;
+      margin-top: 0;
+    }
+  }
+
+  a[data-footnote-backref] {
+    margin-left: --spacing(1.5);
+    color: var(--color-gray-400);
+    text-decoration: none;
+
+    &:hover {
+      color: var(--color-gray-700);
+    }
+
+    @variant dark {
+      &:hover {
+        color: var(--color-white);
+      }
+    }
+  }
+
+  /* the inline superscript citation */
+  [data-footnote-ref] {
+    scroll-margin-top: --spacing(20);
+    font-weight: var(--font-weight-medium);
+    text-decoration: none;
+    color: var(--color-gray-950);
+
+    @variant dark {
+      color: var(--color-white);
+    }
+  }
+}
+
+/* Tarot Groups (Section Second, Supplement 1), rendered by <TarotGroups />.
+   Eight tableaux, each a 4-wide grid: the group name, then fourteen 3x3
+   number-grids, then a blank cell — mirroring the printed pages. On narrow
+   screens the name becomes a full-width heading and the grids stack. */
+.tg-root {
+  display: flex;
+  flex-direction: column;
+  gap: --spacing(12);
+  margin-top: --spacing(8);
+}
+
+/* The component sits inside .prose, whose "* + *" rule adds a top margin to
+   every adjacent sibling; zero it out so the grid cells lay out cleanly. */
+.tg-root * {
+  margin-top: 0;
+}
+
+.tg-group {
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: start;
+  justify-items: start;
+  gap: --spacing(6) --spacing(10);
+  font-variant-numeric: tabular-nums;
+}
+
+.tg-label {
+  align-self: center;
+  font-style: italic;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  color: var(--color-gray-950);
+
+  @variant dark {
+    color: var(--color-white);
+  }
+}
+
+.tg-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1.75em);
+  column-gap: --spacing(2);
+  text-align: right;
+  font-size: var(--text-sm);
+  line-height: 1.55;
+  color: var(--color-gray-700);
+
+  @variant dark {
+    color: var(--color-gray-300);
+  }
+}
+
+@media (max-width: 40rem) {
+  .tg-group {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: --spacing(5) --spacing(8);
+  }
+
+  .tg-label {
+    grid-column: 1 / -1;
+    align-self: start;
+  }
+
+  .tg-blank {
+    display: none;
+  }
+}

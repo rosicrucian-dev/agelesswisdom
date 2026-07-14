@@ -1,0 +1,54 @@
+{
+  "name": "agelesswisdom",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "prebuild": "npm run gen:search",
+    "postbuild": "npm run gen:sw",
+    "gen:sw": "node --experimental-strip-types scripts/gen-sw.ts",
+    "verify:build": "npm run gen:search && NEXT_DIST_DIR=.next-verify next build",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint",
+    "format": "prettier --write .",
+    "gen:search": "node --experimental-strip-types scripts/gen-search-index.ts",
+    "pdf:lessons": "node --experimental-strip-types scripts/print/lessons.ts",
+    "gen:favicon": "node --experimental-strip-types scripts/gen-favicon.ts",
+    "gen:appicon": "node --experimental-strip-types scripts/gen-appicon.ts",
+    "gen:splash": "node --experimental-strip-types scripts/gen-splash.ts",
+    "gen:social": "node --experimental-strip-types scripts/gen-social.ts",
+    "recrop:setup": "python3 -m venv scripts/recrop/.venv && scripts/recrop/.venv/bin/pip install -q -r scripts/recrop/requirements.txt",
+    "recrop": "scripts/recrop/.venv/bin/python scripts/recrop/recrop.py"
+  },
+  "dependencies": {
+    "@headlessui/react": "^2.2.10",
+    "@mdx-js/loader": "^3.1.0",
+    "@mdx-js/react": "^3.1.0",
+    "@next/mdx": "16.2.6",
+    "@tailwindcss/postcss": "^4.3.1",
+    "clsx": "^2.1.1",
+    "next": "16.2.6",
+    "postcss": "^8.5.6",
+    "react": "19.2.6",
+    "react-dom": "19.2.6",
+    "remark-gfm": "^4.0.0",
+    "tailwindcss": "^4.3.1"
+  },
+  "devDependencies": {
+    "@types/mdx": "^2.0.13",
+    "@types/node": "^24.1.0",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "16.2.6",
+    "prettier": "^3.8.3",
+    "prettier-plugin-organize-imports": "^4.3.0",
+    "prettier-plugin-tailwindcss": "^0.8.0",
+    "typescript": "^5.8.3"
+  },
+  "overrides": {
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3"
+  }
+}
