@@ -34,11 +34,11 @@ export default function Page() {
           </p>
           <p>
             This website is a project of{' '}
-            <a href="https://github.com/rosicrucian-dev">
+            <a href="https://rosicrucian.dev">
               Rosicrucian Developers
             </a>
             . For questions, contact the lead developer,{' '}
-            <a href="mailto:jonathan@rosicrucian.dev">Jonathan</a>.
+            <a href="https://rosicrucian.dev/jonathan">Jonathan</a>.
           </p>
 
           <h2>Other Projects from Rosicrucian Developers</h2>
@@ -47,6 +47,15 @@ export default function Page() {
           </ul>
           <br/>
         </div>
+        <a href="https://rosicrucian.dev" className="inline-block">
+          <img
+            src="/avatar.png"
+            alt="Rosicrucian Developers emblem"
+            width={128}
+            height={128}
+            className="size-32"
+          />
+        </a>
       </div>
     </SidebarLayoutContent>
   );
