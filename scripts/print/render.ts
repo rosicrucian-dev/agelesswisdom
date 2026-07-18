@@ -346,6 +346,13 @@ export function mdxToHtml(markdown: string): string {
       while (lines[i + 1]?.trim().startsWith(">")) {
         quoteLines.push(lines[++i].trim().replace(/^>\s?/, ""));
       }
+      // Nested quote (`> > …`): after stripping one level the content still
+      // has blockquote lines. Recurse so the inner quote becomes a nested
+      // <blockquote> instead of leaking its `>` as literal text.
+      if (quoteLines.some((ql) => /^>\s?/.test(ql.trim()))) {
+        out.push(`<blockquote>${mdxToHtml(quoteLines.join("\n"))}</blockquote>`);
+        continue;
+      }
       // One <p> per quotation paragraph (split on blank quote lines) so a long
       // quote can break across pages BETWEEN paragraphs; each paragraph is kept
       // whole by the `.blockquote p` break rule. The old single-<p> form let the
@@ -583,7 +590,7 @@ table {
 }
 td,
 th {
-  border: 0.4pt solid #bdb4a3;
+  border: 1pt solid #bdb4a3;
   padding: 0.035in 0.055in;
   text-align: center;
   vertical-align: middle;
