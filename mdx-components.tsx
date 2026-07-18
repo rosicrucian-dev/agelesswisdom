@@ -98,6 +98,14 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
           {children}
         </a>
       ),
+    // Wrap wide tables in a scroll container so the table keeps display:table
+    // and renders its full collapsed borders (a block table clipped by its own
+    // overflow thins the right/bottom borders). The div carries the scroll.
+    table: (props) => (
+      <div className="overflow-x-auto">
+        <table {...props} />
+      </div>
+    ),
     // Custom components usable in lesson MDX.
     TarotGroups,
     // Print-only page-break hint: keeps a labeled unit (a titled list, a short

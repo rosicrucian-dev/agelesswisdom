@@ -55,7 +55,9 @@ self.addEventListener("install", (event) => {
       // partial precache that never heals is worse.
       const failed = results.filter((r) => r.status === "rejected");
       if (failed.length > 0) {
-        throw new Error(`precache: ${failed.length} of ${results.length} failed`);
+        throw new Error(
+          `precache: ${failed.length} of ${results.length} failed`,
+        );
       }
 
       // Prune entries dropped from the manifest, then store the new revs.

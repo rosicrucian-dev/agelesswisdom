@@ -1,11 +1,15 @@
+"use client";
+
+import { Link } from "@/components/locale-link";
+import { useT } from "@/lib/use-t";
 import { clsx } from "clsx";
-import Link, { type LinkProps } from "next/link";
 import type React from "react";
 
 export function Breadcrumbs(props: React.ComponentProps<"nav">) {
+  const { t } = useT();
   return (
     <nav
-      aria-label="Breadcrumb"
+      aria-label={t("breadcrumbs.label")}
       className="flex items-center gap-x-2 text-sm/6"
       {...props}
     />
@@ -13,11 +17,12 @@ export function Breadcrumbs(props: React.ComponentProps<"nav">) {
 }
 
 export function BreadcrumbHome() {
+  const { t } = useT();
   return (
     <Link
       href="/"
       className="min-w-0 shrink-0 text-gray-950 dark:text-white"
-      aria-label="The School of Ageless Wisdom home"
+      aria-label={t("breadcrumbs.homeLabel")}
     >
       Home
     </Link>
@@ -29,7 +34,8 @@ export function Breadcrumb({
   children,
   className,
 }: {
-  href?: LinkProps["href"];
+  // Plain string hrefs only — the locale-aware Link prefixes them.
+  href?: string;
   children: React.ReactNode;
   className?: string;
 }) {

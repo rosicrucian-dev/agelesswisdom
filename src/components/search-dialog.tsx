@@ -7,8 +7,11 @@
 // Default-exported so next/dynamic in search.tsx can lazy-load this chunk on
 // first use; the index itself is fetched only when the dialog first opens.
 
+import { useLocaleRouter } from "@/components/locale-link";
+import { useLocale } from "@/components/locale-provider";
 import { SearchIcon } from "@/icons/search-icon";
 import { searchIndex, type SearchIndex, type SearchResult } from "@/lib/search";
+import { useT } from "@/lib/use-t";
 import {
   Combobox,
   ComboboxInput,
@@ -19,21 +22,26 @@ import {
   DialogPanel,
 } from "@headlessui/react";
 import { clsx } from "clsx";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 
-// Fetched once per session, shared across dialog opens.
-let indexPromise: Promise<SearchIndex> | undefined;
-function loadIndex(): Promise<SearchIndex> {
-  return (indexPromise ??= fetch(
-    `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/search-index.json`,
-  ).then((res) => {
-    if (!res.ok) {
-      indexPromise = undefined;
-      throw new Error(`search index: HTTP ${res.status}`);
-    }
-    return res.json();
-  }));
+// Fetched once per session per locale, shared across dialog opens.
+const indexPromises = new Map<string, Promise<SearchIndex>>();
+function loadIndex(locale: string): Promise<SearchIndex> {
+  let promise = indexPromises.get(locale);
+  if (!promise) {
+    promise = fetch(
+      `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/search-index.${locale}.json`,
+    ).then((res) => {
+      if (!res.ok) {
+        indexPromises.delete(locale);
+        throw new Error(`search index: HTTP ${res.status}`);
+      }
+      return res.json();
+    });
+    indexPromises.set(locale, promise);
+  }
+  return promise;
 }
 
 export default function SearchDialog({
@@ -43,7 +51,9 @@ export default function SearchDialog({
   open: boolean;
   setOpen: (open: boolean) => void;
 }) {
-  let router = useRouter();
+  let router = useLocaleRouter();
+  const { t, tf } = useT();
+  const locale = useLocale();
   let pathname = usePathname();
   let [query, setQuery] = useState("");
   let [index, setIndex] = useState<SearchIndex>();
@@ -52,7 +62,7 @@ export default function SearchDialog({
   useEffect(() => {
     if (!open || index) return;
     let cancelled = false;
-    loadIndex().then(
+    loadIndex(locale).then(
       (idx) => {
         if (!cancelled) setIndex(idx);
       },
@@ -63,7 +73,7 @@ export default function SearchDialog({
     return () => {
       cancelled = true;
     };
-  }, [open, index]);
+  }, [open, index, locale]);
 
   // Close (and reset) when navigation completes — but not on mount, which
   // happens the moment the user first opens the dialog.
@@ -78,8 +88,8 @@ export default function SearchDialog({
   }, [pathname]);
 
   let results = useMemo(
-    () => (index && query.trim() ? searchIndex(index, query) : []),
-    [index, query],
+    () => (index && query.trim() ? searchIndex(index, query, locale) : []),
+    [index, query, locale],
   );
 
   return (
@@ -103,7 +113,7 @@ export default function SearchDialog({
               <SearchIcon className="stroke-gray-500 dark:stroke-gray-400" />
               <ComboboxInput
                 autoFocus
-                placeholder="Search the lessons..."
+                placeholder={t("search.placeholder")}
                 className="flex-auto bg-transparent text-base/6 text-gray-950 outline-hidden placeholder:text-gray-500 sm:text-sm/6 dark:text-white dark:placeholder:text-gray-400"
                 onChange={(event) => setQuery(event.target.value)}
               />
@@ -139,10 +149,10 @@ export default function SearchDialog({
                 ) : (
                   <p className="px-4 py-6 text-center text-sm/6 text-gray-500 dark:text-gray-400">
                     {failed
-                      ? "Search is unavailable right now."
+                      ? t("search.unavailable")
                       : index
-                        ? `No lessons mention “${query.trim()}”.`
-                        : "Loading the index…"}
+                        ? tf("search.noResults", { query: query.trim() })
+                        : t("search.loading")}
                   </p>
                 )}
               </div>

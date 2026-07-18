@@ -16,7 +16,8 @@ import * as path from "node:path";
 export const ROOT = path.join(import.meta.dirname, "..", "..");
 export const PUBLIC_DIR = path.join(ROOT, "public");
 export const APP_DIR = path.join(ROOT, "src", "app");
-export const CONTENT_DIR = path.join(ROOT, "content", "lessons");
+// Print bundles are generated from the ENGLISH sources on purpose.
+export const CONTENT_DIR = path.join(ROOT, "content", "lessons", "en");
 // Vendored fonts committed alongside this renderer so the PDF build is
 // self-contained and reproducible on any platform (incl. the Linux CI runner).
 export const FONTS_DIR = path.join(import.meta.dirname, "fonts");
@@ -154,7 +155,9 @@ export function imageFigure(line: string): string | null {
     aspect = ` style="--aspect:${width}/${height}"`;
   }
   let caption =
-    alt && alt !== "Figure" ? `<figcaption>${escapeHtml(alt)}</figcaption>` : "";
+    alt && alt !== "Figure"
+      ? `<figcaption>${escapeHtml(alt)}</figcaption>`
+      : "";
   return `<figure class="figure"${aspect}><img src="${escapeHtml(
     src,
   )}" alt="${escapeHtml(alt)}"${dimAttrs}>${caption}</figure>`;
@@ -162,14 +165,70 @@ export function imageFigure(line: string): string | null {
 
 export function tarotGroupsHtml(): string {
   let groups = [
-    { name: "First Group", offsets: [[-1, 0, 1], [2, 3, 4], [5, 6, 7]] },
-    { name: "Second Group", offsets: [[1, 0, -1], [4, 3, 2], [7, 6, 5]] },
-    { name: "Third Group", offsets: [[-1, 2, 5], [0, 3, 6], [1, 4, 7]] },
-    { name: "Fourth Group", offsets: [[5, 2, -1], [6, 3, 0], [7, 4, 1]] },
-    { name: "Fifth Group", offsets: [[5, 6, 7], [2, 3, 4], [-1, 0, 1]] },
-    { name: "Sixth Group", offsets: [[7, 6, 5], [4, 3, 2], [1, 0, -1]] },
-    { name: "Seventh Group", offsets: [[7, 4, 1], [6, 3, 0], [5, 2, -1]] },
-    { name: "Eighth Group", offsets: [[1, 4, 7], [0, 3, 6], [-1, 2, 5]] },
+    {
+      name: "First Group",
+      offsets: [
+        [-1, 0, 1],
+        [2, 3, 4],
+        [5, 6, 7],
+      ],
+    },
+    {
+      name: "Second Group",
+      offsets: [
+        [1, 0, -1],
+        [4, 3, 2],
+        [7, 6, 5],
+      ],
+    },
+    {
+      name: "Third Group",
+      offsets: [
+        [-1, 2, 5],
+        [0, 3, 6],
+        [1, 4, 7],
+      ],
+    },
+    {
+      name: "Fourth Group",
+      offsets: [
+        [5, 2, -1],
+        [6, 3, 0],
+        [7, 4, 1],
+      ],
+    },
+    {
+      name: "Fifth Group",
+      offsets: [
+        [5, 6, 7],
+        [2, 3, 4],
+        [-1, 0, 1],
+      ],
+    },
+    {
+      name: "Sixth Group",
+      offsets: [
+        [7, 6, 5],
+        [4, 3, 2],
+        [1, 0, -1],
+      ],
+    },
+    {
+      name: "Seventh Group",
+      offsets: [
+        [7, 4, 1],
+        [6, 3, 0],
+        [5, 2, -1],
+      ],
+    },
+    {
+      name: "Eighth Group",
+      offsets: [
+        [1, 4, 7],
+        [0, 3, 6],
+        [-1, 2, 5],
+      ],
+    },
   ];
 
   return `<div class="tarot-groups">${groups
@@ -250,6 +309,20 @@ export function mdxToHtml(markdown: string): string {
       continue;
     }
 
+    // Fenced code block (```lang … ```): verbatim, whitespace-preserved
+    // monospace — the Oracle-of-Tarot attribution lists, card spreads, dot
+    // figures. Content is taken raw (no inline markdown) and HTML-escaped.
+    if (trimmed.startsWith("```")) {
+      flushParagraph();
+      let content: string[] = [];
+      while (i + 1 < lines.length && !lines[i + 1].trim().startsWith("```")) {
+        content.push(lines[++i]);
+      }
+      if (i + 1 < lines.length) i++; // consume the closing fence
+      out.push(`<pre><code>${escapeHtml(content.join("\n"))}</code></pre>`);
+      continue;
+    }
+
     let footnoteDef = trimmed.match(/^\[\^([^\]]+)\]:\s*(.+)$/);
     if (footnoteDef) {
       flushParagraph();
@@ -317,7 +390,9 @@ export function mdxToHtml(markdown: string): string {
       }
       out.push(
         `<ol>${items
-          .map((item) => `<li value="${item.n}">${inlineMarkdown(item.text)}</li>`)
+          .map(
+            (item) => `<li value="${item.n}">${inlineMarkdown(item.text)}</li>`,
+          )
           .join("")}</ol>`,
       );
       continue;
@@ -462,6 +537,20 @@ blockquote p {
 blockquote p + p {
   margin-top: 0.14in;
 }
+/* Fenced monospace blocks — the Oracle-of-Tarot aligned attribution lists,
+ * card spreads and dot figures. white-space: pre keeps their column alignment;
+ * a monospace face at a small size keeps the lines on the page. */
+pre {
+  break-inside: avoid;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 8.5pt;
+  line-height: 1.35;
+  margin: 0.16in 0;
+  white-space: pre;
+}
+pre code {
+  font-family: inherit;
+}
 ol,
 ul {
   margin: 0.12in 0 0.12in 0.26in;
@@ -577,7 +666,8 @@ figcaption {
 function chromePath(): string {
   // CHROME_BIN escape hatch for CI / non-standard installs.
   if (process.env.CHROME_BIN) return process.env.CHROME_BIN;
-  let macChrome = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+  let macChrome =
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
   if (fs.existsSync(macChrome)) return macChrome;
   // On the GitHub ubuntu runner (and most Linux setups) this is on PATH;
   // execFileSync resolves it via PATH.
@@ -585,11 +675,26 @@ function chromePath(): string {
 }
 
 export function buildPdf(htmlPath: string, pdfPath: string) {
+  // `--print-to-pdf` is fire-and-forget: Chrome prints the moment it considers
+  // the page "loaded", which does NOT guarantee the @font-face web fonts have
+  // finished loading and re-laid-out the text. On a fast local disk the fonts
+  // win the race and every page is perfect; on the slower CI runner the print
+  // can fire mid-layout, dropping whole body paragraphs (blockquotes, being
+  // shorter, survive) and leaving blank pages — the exact macOS-fine / Linux-
+  // broken divergence we hit. The fix, all supported by the plain CLI:
+  //   • --virtual-time-budget advances a virtual clock and HOLDS the print
+  //     until pending resources (the fonts) settle or the budget elapses — the
+  //     canonical cure for the print-before-fonts race.
+  //   • --run-all-compositor-stages-before-draw forces a full paint first.
+  //   • --headless=new is the maintained headless implementation (old headless
+  //     is being removed from Chrome and renders paged media inconsistently).
   execFileSync(chromePath(), [
-    "--headless",
+    "--headless=new",
     "--disable-gpu",
     "--no-sandbox",
     "--no-pdf-header-footer",
+    "--run-all-compositor-stages-before-draw",
+    "--virtual-time-budget=20000",
     `--print-to-pdf=${pdfPath}`,
     `file://${htmlPath}`,
   ]);

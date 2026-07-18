@@ -26,6 +26,9 @@ export default function manifest(): MetadataRoute.Manifest {
     // the browser chrome agree.
     background_color: "#ffffff",
     theme_color: "#ffffff",
+    // Single-locale by nature (one start_url, one lang) — stays English;
+    // the first-visit bounce in [locale]/layout.tsx redirects a
+    // translated-locale install from "/" at launch.
     lang: "en",
     icons: [
       { src: "/icon-192.png", sizes: "192x192", type: "image/png" },

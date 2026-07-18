@@ -8,6 +8,7 @@
 
 import { IconButton } from "@/components/icon-button";
 import { SearchIcon } from "@/icons/search-icon";
+import { useT } from "@/lib/use-t";
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 
@@ -17,6 +18,7 @@ const SearchDialog = dynamic(() => import("./search-dialog"), {
 });
 
 export function Search({ className }: { className?: string }) {
+  const { t } = useT();
   let [open, setOpen] = useState(false);
   // The dialog only mounts once search has been used, then stays mounted so
   // the fetched index and dialog state survive re-opens.
@@ -43,7 +45,7 @@ export function Search({ className }: { className?: string }) {
     <>
       <IconButton
         className={className}
-        aria-label="Search lessons"
+        aria-label={t("search.label")}
         onClick={openSearch}
       >
         <SearchIcon className="stroke-gray-950 dark:stroke-white" />

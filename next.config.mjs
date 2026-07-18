@@ -17,7 +17,13 @@ const withMDX = createMDX({
 const basePath = process.env.BASE_PATH ?? "";
 
 const nextConfig = {
-  output: "export",
+  // Static export for builds only. In dev, `output: "export"` insists
+  // every dynamic param come from a page-level generateStaticParams —
+  // it doesn't collect the [locale] layout's params like the build does
+  // — so / (rewritten to /en/) 500s. Plain dev mode renders params on
+  // demand (the [locale] layout's dynamicParams=false still 404s /fr/).
+  // Same convention as ../bota-toolbox.
+  output: process.env.NODE_ENV === "development" ? undefined : "export",
   basePath,
   // Plain asset URLs (e.g. the lesson PDF object tag) don't get basePath
   // prefixed automatically the way next/image and Link do; expose it.
@@ -38,6 +44,16 @@ const nextConfig = {
   // hydrates, so nothing interactive works). Same convention as
   // bota-toolbox.
   allowedDevOrigins: ["192.168.1.*", "localhost", "127.0.0.1"],
+  // Dev-only: serve unprefixed English URLs from the /en/ tree so dev
+  // matches the deployed URL shape (scripts/hoist-en.ts moves out/en/*
+  // to the export root after `next build`). A *fallback* rewrite runs
+  // only when no filesystem route matched, so /de/... and /_next/...
+  // pass through untouched.
+  ...(process.env.NODE_ENV === "development" && {
+    async rewrites() {
+      return { fallback: [{ source: "/:path*", destination: "/en/:path*" }] };
+    },
+  }),
 };
 
 export default withMDX(nextConfig);

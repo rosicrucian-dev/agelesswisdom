@@ -17,6 +17,7 @@
 import { createHash } from "node:crypto";
 import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, relative, sep } from "node:path";
+import { TRANSLATION_LOCALES } from "../src/lib/locales.ts";
 
 const outDir = process.argv[2] ?? "out";
 const templatePath = join("scripts", "sw.template.js");
@@ -48,6 +49,13 @@ const precachePaths = walk(outDir)
   .map((full) => relative(outDir, full))
   .filter((rel) => {
     const posix = rel.split(sep).join("/");
+    // Translated-locale pages (/de/** etc.) are NOT precached —
+    // installing the PWA shouldn't multiply the download for locales
+    // most users never open; the runtime cache picks them up as they're
+    // browsed. (English sits at the root after scripts/hoist-en.ts.)
+    if (TRANSLATION_LOCALES.some((l) => posix.startsWith(`${l}/`))) {
+      return false;
+    }
     if (posix.endsWith("/index.html") || posix === "index.html") return true;
     if (posix === "404.html") return true;
     if (posix.startsWith("_next/static/")) return true;
@@ -75,7 +83,9 @@ if (manifest.length < 100) {
 const template = readFileSync(templatePath, "utf8");
 const TOKEN = "__PRECACHE_MANIFEST__";
 if (template.split(TOKEN).length !== 2) {
-  throw new Error("gen-sw: template must contain the manifest token exactly once");
+  throw new Error(
+    "gen-sw: template must contain the manifest token exactly once",
+  );
 }
 const sw = template.replace(TOKEN, JSON.stringify(manifest));
 

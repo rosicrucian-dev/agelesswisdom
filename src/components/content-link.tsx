@@ -1,7 +1,7 @@
+import { Link } from "@/components/locale-link";
 import { ArticleIcon } from "@/icons/article-icon";
 import { CheckmarkIcon } from "@/icons/checkmark-icon";
 import { CirclePlayIcon } from "@/icons/circle-play-icon";
-import Link from "next/link";
 
 function formatDuration(seconds: number): string {
   let m = Math.floor(seconds / 60);

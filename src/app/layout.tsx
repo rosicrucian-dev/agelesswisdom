@@ -1,8 +1,5 @@
-import { ServiceWorkerRegistration } from "@/components/service-worker-registration";
 import { SPLASH_DEVICES, splashMedia, splashPath } from "@/lib/splash";
-import { clsx } from "clsx";
 import type { Metadata, Viewport } from "next";
-import localFont from "next/font/local";
 import type React from "react";
 import "./globals.css";
 
@@ -47,43 +44,16 @@ export const viewport: Viewport = {
   colorScheme: "light dark",
 };
 
-const InterVariable = localFont({
-  variable: "--font-inter",
-  src: [
-    { path: "./InterVariable.woff2", style: "normal" },
-    { path: "./InterVariable-Italic.woff2", style: "italic" },
-  ],
-});
-
-// Literata (TypeTogether, OFL) — Google Play Books' reading serif, used for the
-// lesson reading column (see `.prose` in typography.css). Full variable font
-// with optical sizing; weight axis 200–900.
-const Literata = localFont({
-  variable: "--font-literata",
-  src: [
-    { path: "./Literata.woff2", style: "normal", weight: "200 900" },
-    { path: "./Literata-Italic.woff2", style: "italic", weight: "200 900" },
-  ],
-});
-
+// Pass-through root layout (same pattern as ../bota-toolbox): the real
+// document (<html lang>, fonts, body) lives in [locale]/layout.tsx so
+// the lang attribute follows the locale segment. This file must still
+// exist — the root not-found boundary renders into it (not-found.tsx
+// supplies its own <html>) — and it keeps the site-wide metadata and
+// viewport exports plus the global stylesheet import.
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <html
-      lang="en"
-      className={clsx(
-        InterVariable.variable,
-        Literata.variable,
-        "scroll-pt-16 font-sans antialiased dark:bg-gray-950",
-      )}
-    >
-      <body>
-        <div className="isolate">{children}</div>
-        <ServiceWorkerRegistration />
-      </body>
-    </html>
-  );
+  return children;
 }

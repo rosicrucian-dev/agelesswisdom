@@ -9,5 +9,5 @@ export const GITHUB_REPO_URL =
 
 export function lessonEditUrl(sectionId: string, lessonId: string): string {
   let { dir, file } = lessonDiskPath(sectionId, lessonId);
-  return `${GITHUB_REPO_URL}/blob/main/content/lessons/${dir}/${file}.mdx`;
+  return `${GITHUB_REPO_URL}/blob/main/content/lessons/en/${dir}/${file}.mdx`;
 }

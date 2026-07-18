@@ -20,6 +20,7 @@
  */
 import * as fs from "node:fs";
 import * as path from "node:path";
+import { fileURLToPath } from "node:url";
 import {
   getAllSections,
   lessonDiskPath,
@@ -41,7 +42,7 @@ import {
 const HTML_DIR = path.join(ROOT, "output", "print", "lessons");
 const PDF_DIR = path.join(ROOT, "public", "lessons");
 
-function lessonCss(): string {
+export function lessonCss(): string {
   return `${fontFaceCss()}
 @page {
   size: 8.5in 11in;
@@ -145,7 +146,10 @@ p {
 ${sharedElementsCss()}`;
 }
 
-function lessonDocumentHtml(section: Section, lesson: Lesson): string {
+/** The masthead + body fragment for one lesson (no <html>/<style> wrapper), so
+ *  it can be used standalone (per-lesson PDF) or concatenated into a single
+ *  continuously-paginated document (the merged all-lessons.pdf). */
+export function lessonBodyHtml(section: Section, lesson: Lesson): string {
   let { dir, file } = lessonDiskPath(section.id, lesson.id);
   let mdxPath = path.join(CONTENT_DIR, dir, `${file}.mdx`);
   let markdown = fs.readFileSync(mdxPath, "utf8");
@@ -153,6 +157,19 @@ function lessonDocumentHtml(section: Section, lesson: Lesson): string {
   let { unit, title } = lessonTitleParts(section, lesson);
   let heading = title ?? numberedLessonTitle(section, lesson);
   let eyebrow = `${section.label} · ${unit}`;
+  return `<header class="lesson-masthead">
+    <div class="eyebrow">${escapeHtml(eyebrow)}</div>
+    <h1>${escapeHtml(heading)}</h1>
+    <hr class="rule">
+  </header>
+  <div class="lesson-body">
+${mdxToHtml(withoutFirstHeading)}
+  </div>`;
+}
+
+function lessonDocumentHtml(section: Section, lesson: Lesson): string {
+  let { title } = lessonTitleParts(section, lesson);
+  let heading = title ?? numberedLessonTitle(section, lesson);
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -161,14 +178,7 @@ function lessonDocumentHtml(section: Section, lesson: Lesson): string {
   <style>${lessonCss()}</style>
 </head>
 <body>
-  <header class="lesson-masthead">
-    <div class="eyebrow">${escapeHtml(eyebrow)}</div>
-    <h1>${escapeHtml(heading)}</h1>
-    <hr class="rule">
-  </header>
-  <div class="lesson-body">
-${mdxToHtml(withoutFirstHeading)}
-  </div>
+${lessonBodyHtml(section, lesson)}
 </body>
 </html>`;
 }
@@ -210,8 +220,12 @@ function main() {
 
   console.log(
     `\n${count} lesson ${htmlOnly ? "HTML files" : "PDFs"} written` +
-      (skipped.length ? `; skipped ${skipped.length} without MDX: ${skipped.join(", ")}` : "."),
+      (skipped.length
+        ? `; skipped ${skipped.length} without MDX: ${skipped.join(", ")}`
+        : "."),
   );
 }
 
-main();
+// Run only when invoked directly (`npm run pdf:lessons`), not when another
+// script imports lessonCss / lessonBodyHtml from here (e.g. bundles.ts).
+if (process.argv[1] === fileURLToPath(import.meta.url)) main();

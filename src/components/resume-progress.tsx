@@ -6,8 +6,9 @@
  * button reads it back, turning "Start the course" into "Continue Lesson 1 -
  * The Life Power" that jumps to the most recently opened lesson.
  */
+import { Link } from "@/components/locale-link";
 import { PlayIcon } from "@/icons/play-icon";
-import Link from "next/link";
+import { useT } from "@/lib/use-t";
 import { useEffect, useSyncExternalStore } from "react";
 
 const STORAGE_KEY = "botacourse:last-lesson";
@@ -80,6 +81,7 @@ function subscribe(onChange: () => void): () => void {
  * then reads the stored lesson on the client and upgrades to "Continue <lesson>".
  */
 export function ResumeButton({ firstHref }: { firstHref: string }) {
+  const { t } = useT();
   let last = useSyncExternalStore(subscribe, readLastLesson, () => null);
   let resume = last && last.href !== firstHref ? last : null;
 
@@ -91,9 +93,9 @@ export function ResumeButton({ firstHref }: { firstHref: string }) {
       <PlayIcon className="fill-white" />
       {resume
         ? resume.label
-          ? `Continue ${resume.label}`
-          : "Continue"
-        : "Start the course"}
+          ? `${t("resume.continue")} ${resume.label}`
+          : t("resume.continue")
+        : t("resume.start")}
     </Link>
   );
 }

@@ -1,5 +1,7 @@
 "use client";
 
+import { useT } from "@/lib/use-t";
+
 import type React from "react";
 
 /**
@@ -19,6 +21,7 @@ export function LessonView({
   hasText?: boolean;
   children: React.ReactNode;
 }) {
+  const { t } = useT();
   // The lesson body: the transcript or a placeholder.
   let body = hasText ? children : <PendingNotice />;
 
@@ -31,11 +34,11 @@ export function LessonView({
             href={pdfUrl}
             target="_blank"
             rel="noreferrer"
-            aria-label="Open a printable PDF of this lesson in a new tab"
-            title="Open a printable PDF of this lesson in a new tab"
+            aria-label={t("lesson.pdfLabel")}
+            title={t("lesson.pdfLabel")}
             className="flex items-center rounded-lg px-3 py-1 text-sm/6 font-medium text-gray-600 ring-1 ring-gray-950/10 ring-inset hover:text-gray-950 dark:text-gray-400 dark:ring-white/15 dark:hover:text-white"
           >
-            PDF ↗
+            {t("lesson.pdf")}
           </a>
         )}
       </div>
@@ -50,18 +53,16 @@ export function LessonView({
  * produced yet. A downloadable PDF remains available via the PDF button.
  */
 function PendingNotice() {
+  const { t } = useT();
   return (
     <div
       role="note"
       className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-8 text-center text-sm/6 text-gray-600 dark:border-white/10 dark:bg-white/5 dark:text-gray-400"
     >
       <p className="font-medium text-gray-950 dark:text-white">
-        Transcript coming soon
+        {t("lesson.transcriptSoonTitle")}
       </p>
-      <p className="mx-auto mt-1 max-w-sm">
-        This lesson hasn&rsquo;t been transcribed to text yet. In the meantime,
-        download it via the PDF button above.
-      </p>
+      <p className="mx-auto mt-1 max-w-sm">{t("lesson.transcriptSoonBody")}</p>
     </div>
   );
 }

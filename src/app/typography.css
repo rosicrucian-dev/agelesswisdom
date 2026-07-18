@@ -28,10 +28,10 @@
     color: var(--color-gray-400);
   }
 
-  /* Code stays in the UI sans; a serif monospace context reads as a mistake. */
-  code,
-  pre,
-  pre > code {
+  /* Inline code stays in the UI sans; a serif monospace context reads as a
+     mistake. Block <pre> (aligned source tables) needs true monospace so the
+     space-padded columns line up — set below in the `pre` rule. */
+  code {
     font-family: var(--font-sans);
   }
 
@@ -145,20 +145,36 @@
     margin-top: --spacing(6);
   }
 
+  /* Used for the Oracle-of-Tarot source tables/diagrams rendered as aligned
+     monospace blocks (card spreads, Hebrew/astrological attribution lists).
+     A subtle panel in the reading column — not a dark code terminal. */
   pre {
     border-radius: var(--radius-lg);
     padding: --spacing(3) --spacing(4);
     overflow-x: auto;
+    background-color: var(--color-gray-100);
+    font-family: var(--font-mono);
+
+    @variant dark {
+      background-color: var(--color-gray-800);
+    }
 
     > code {
       display: block;
+      /* wins over the inline-`code` sans rule above (more specific), so the
+         monospace actually reaches the text nested in <pre><code> */
+      font-family: var(--font-mono);
       font-size: var(--text-sm);
       line-height: --spacing(5);
-      color: var(--color-white);
+      color: var(--color-gray-800);
+
+      @variant dark {
+        color: var(--color-gray-200);
+      }
     }
 
     &::selection {
-      background-color: --alpha(var(--color-white) / 15%);
+      background-color: --alpha(var(--color-gray-950) / 10%);
     }
   }
 
@@ -203,23 +219,37 @@
     }
   }
 
-  /* Lesson tables (correspondences, tableaus) can be wide; let them scroll. */
+  /* Lesson tables (correspondences, tableaus) can be wide; the mdx <table>
+     component wraps each one in an overflow-x-auto div so it can scroll.
+     Borders are drawn with border-collapse: SEPARATE (not collapse): the table
+     owns the top+left edges, each cell owns its right+bottom. Every grid line
+     is thus a single 1px border drawn INSIDE an element box, so none straddle
+     the table's edge — that straddling is what let rounding/clipping shave the
+     right & bottom borders thinner than the left & top under collapse. */
   table {
-    display: block;
-    overflow-x: auto;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-top: 1px solid --alpha(var(--color-gray-950) / 10%);
+    border-left: 1px solid --alpha(var(--color-gray-950) / 10%);
     font-size: var(--text-sm);
     line-height: --spacing(6);
 
+    @variant dark {
+      border-top-color: --alpha(var(--color-white) / 10%);
+      border-left-color: --alpha(var(--color-white) / 10%);
+    }
+
     th,
     td {
-      border: 1px solid --alpha(var(--color-gray-950) / 10%);
+      border-right: 1px solid --alpha(var(--color-gray-950) / 10%);
+      border-bottom: 1px solid --alpha(var(--color-gray-950) / 10%);
       padding: --spacing(1.5) --spacing(3);
       text-align: left;
       vertical-align: top;
 
       @variant dark {
-        border-color: --alpha(var(--color-white) / 10%);
+        border-right-color: --alpha(var(--color-white) / 10%);
+        border-bottom-color: --alpha(var(--color-white) / 10%);
       }
     }
 

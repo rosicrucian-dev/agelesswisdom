@@ -13,14 +13,70 @@
 // On narrow screens the name becomes a full-width heading and the grids stack.
 
 const GROUPS: { name: string; offsets: readonly (readonly number[])[] }[] = [
-  { name: "First Group", offsets: [[-1, 0, 1], [2, 3, 4], [5, 6, 7]] },
-  { name: "Second Group", offsets: [[1, 0, -1], [4, 3, 2], [7, 6, 5]] },
-  { name: "Third Group", offsets: [[-1, 2, 5], [0, 3, 6], [1, 4, 7]] },
-  { name: "Fourth Group", offsets: [[5, 2, -1], [6, 3, 0], [7, 4, 1]] },
-  { name: "Fifth Group", offsets: [[5, 6, 7], [2, 3, 4], [-1, 0, 1]] },
-  { name: "Sixth Group", offsets: [[7, 6, 5], [4, 3, 2], [1, 0, -1]] },
-  { name: "Seventh Group", offsets: [[7, 4, 1], [6, 3, 0], [5, 2, -1]] },
-  { name: "Eighth Group", offsets: [[1, 4, 7], [0, 3, 6], [-1, 2, 5]] },
+  {
+    name: "First Group",
+    offsets: [
+      [-1, 0, 1],
+      [2, 3, 4],
+      [5, 6, 7],
+    ],
+  },
+  {
+    name: "Second Group",
+    offsets: [
+      [1, 0, -1],
+      [4, 3, 2],
+      [7, 6, 5],
+    ],
+  },
+  {
+    name: "Third Group",
+    offsets: [
+      [-1, 2, 5],
+      [0, 3, 6],
+      [1, 4, 7],
+    ],
+  },
+  {
+    name: "Fourth Group",
+    offsets: [
+      [5, 2, -1],
+      [6, 3, 0],
+      [7, 4, 1],
+    ],
+  },
+  {
+    name: "Fifth Group",
+    offsets: [
+      [5, 6, 7],
+      [2, 3, 4],
+      [-1, 0, 1],
+    ],
+  },
+  {
+    name: "Sixth Group",
+    offsets: [
+      [7, 6, 5],
+      [4, 3, 2],
+      [1, 0, -1],
+    ],
+  },
+  {
+    name: "Seventh Group",
+    offsets: [
+      [7, 4, 1],
+      [6, 3, 0],
+      [5, 2, -1],
+    ],
+  },
+  {
+    name: "Eighth Group",
+    offsets: [
+      [1, 4, 7],
+      [0, 3, 6],
+      [-1, 2, 5],
+    ],
+  },
 ];
 
 function MiniGrid({

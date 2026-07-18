@@ -5,7 +5,7 @@
 // history/word-jump shortcuts), when typing in an input (e.g. the search
 // dialog), or while any dialog is open.
 
-import { useRouter } from "next/navigation";
+import { useLocaleRouter } from "@/components/locale-link";
 import { useEffect } from "react";
 
 export function LessonKeyboardNav({
@@ -15,7 +15,7 @@ export function LessonKeyboardNav({
   prevHref?: string;
   nextHref?: string;
 }) {
-  let router = useRouter();
+  let router = useLocaleRouter();
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {

@@ -6,6 +6,10 @@
   --font-sans--font-feature-settings: "cv11";
   /* Serif for the lesson reading column (Literata). */
   --font-serif: var(--font-literata);
+  /* Monospace for aligned source tables/diagrams rendered as <pre> blocks
+     (Oracle of Tarot). A system stack — no web font needed for these. */
+  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas,
+    "Liberation Mono", monospace;
 }
 
 @theme {

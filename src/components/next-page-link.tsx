@@ -1,5 +1,5 @@
+import { Link } from "@/components/locale-link";
 import { ChevronRightIcon } from "@/icons/chevron-right-icon";
-import Link from "next/link";
 
 export function NextPageLink({
   title,

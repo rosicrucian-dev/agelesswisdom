@@ -1,8 +1,14 @@
 "use client";
 
 import { IconButton } from "@/components/icon-button";
-import { lessonTitleParts, lessonUrl, type Section } from "@/data/curriculum";
+import { Link } from "@/components/locale-link";
+import {
+  lessonTitleParts,
+  lessonUrl,
+  type Section,
+} from "@/data/curriculum-helpers";
 import { SidebarIcon } from "@/icons/sidebar-icon";
+import { useT } from "@/lib/use-t";
 import {
   CloseButton,
   Dialog,
@@ -10,7 +16,6 @@ import {
   DialogPanel,
 } from "@headlessui/react";
 import { clsx } from "clsx";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type React from "react";
 import { createContext, useContext, useState } from "react";
@@ -126,6 +131,7 @@ export function SidebarLayout({
   sections: Section[];
   children: React.ReactNode;
 }) {
+  const { t } = useT();
   let [isSidebarOpen, setIsSidebarOpen] = useState(true);
   let [isMobileDialogOpen, setIsMobileDialogOpen] = useState(false);
 
@@ -143,7 +149,7 @@ export function SidebarLayout({
         className="group"
       >
         <aside className="fixed inset-y-0 left-0 w-2xs overflow-y-auto border-r border-gray-950/10 group-data-sidebar-collapsed:hidden max-lg:hidden dark:border-white/10">
-          <nav aria-label="Course" className="px-6 py-4">
+          <nav aria-label={t("nav.course")} className="px-6 py-4">
             <div className="sticky top-4 flex h-6">
               <IconButton onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
                 <SidebarIcon className="shrink-0 stroke-gray-950 dark:stroke-white" />

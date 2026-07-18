@@ -1,9 +1,13 @@
 "use client";
 
 import { IconButton } from "@/components/icon-button";
+import { LanguageSwitcher } from "@/components/language-switcher";
+import { Link } from "@/components/locale-link";
 import { Search } from "@/components/search";
 import { CloseIcon } from "@/icons/close-icon";
 import { MenuIcon } from "@/icons/menu-icon";
+import { type MessageKey } from "@/lib/messages";
+import { useT } from "@/lib/use-t";
 import {
   CloseButton,
   Dialog,
@@ -11,11 +15,10 @@ import {
   DialogPanel,
 } from "@headlessui/react";
 import { clsx } from "clsx";
-import Link from "next/link";
 import type React from "react";
 import { useState } from "react";
 
-const links: [string, string][] = [["About", "/about"]];
+const links: [MessageKey, string][] = [["nav.about", "/about"]];
 
 export function Navbar({
   children,
@@ -49,6 +52,7 @@ function MobileNavigation({
   open: boolean;
   onClose: () => void;
 }) {
+  const { t } = useT();
   return (
     <Dialog open={open} onClose={onClose} className="lg:hidden">
       <DialogBackdrop className="fixed inset-0 bg-gray-950/25" />
@@ -61,14 +65,14 @@ function MobileNavigation({
           </div>
           <div className="mt-4">
             <div className="flex flex-col gap-y-2">
-              {links.map(([title, href]) => (
+              {links.map(([titleKey, href]) => (
                 <CloseButton
                   as={Link}
                   key={href}
                   href={href}
                   className="block rounded-md px-4 py-1.5 text-lg/7 font-medium tracking-tight text-gray-950 hover:bg-gray-950/5 dark:text-white dark:hover:bg-white/5"
                 >
-                  {title}
+                  {t(titleKey)}
                 </CloseButton>
               ))}
             </div>
@@ -79,12 +83,18 @@ function MobileNavigation({
   );
 }
 
-function SiteNavigation({ alwaysShowLinks = false }: { alwaysShowLinks?: boolean }) {
+function SiteNavigation({
+  alwaysShowLinks = false,
+}: {
+  alwaysShowLinks?: boolean;
+}) {
+  const { t } = useT();
   let [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <nav className="flex items-center gap-x-6">
       <Search />
+      <LanguageSwitcher />
       {/* When links are always inline, the hamburger (and its dialog) is
           unnecessary at every width. */}
       {!alwaysShowLinks && (
@@ -107,9 +117,9 @@ function SiteNavigation({ alwaysShowLinks = false }: { alwaysShowLinks?: boolean
           !alwaysShowLinks && "max-lg:hidden",
         )}
       >
-        {links.map(([title, href]) => (
+        {links.map(([titleKey, href]) => (
           <Link key={href} href={href}>
-            {title}
+            {t(titleKey)}
           </Link>
         ))}
       </div>

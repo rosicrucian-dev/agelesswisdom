@@ -30,11 +30,18 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      # ghostscript (merge + bookmarks) and poppler-utils (pdfinfo) power the
+      # download bundles below; zip is preinstalled on the runner.
+      - run: sudo apt-get update && sudo apt-get install -y ghostscript poppler-utils
       # Per-lesson PDFs are derived from the MDX and generated here (not
       # committed) so they ship in the static export. Uses headless Chrome,
       # which is pre-installed on the GitHub ubuntu runner (google-chrome on
       # PATH; override with CHROME_BIN if needed).
       - run: npm run pdf:lessons
+      # Bundle those PDFs into public/downloads/ (all-lessons.zip + a single
+      # merged all-lessons.pdf with a section/lesson bookmark outline). Also
+      # derived, not committed. Must run after pdf:lessons.
+      - run: npm run pdf:bundles
       - run: npm run build
       - uses: actions/upload-pages-artifact@v5
         with:

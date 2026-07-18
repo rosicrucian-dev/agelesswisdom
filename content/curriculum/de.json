@@ -1,0 +1,547 @@
+[
+  {
+    "id": "section-a",
+    "label": "Abschnitt A",
+    "title": "Introduction",
+    "unitLabel": "Lesson",
+    "lessons": [
+      {
+        "id": "the-life-power",
+        "title": "Die Lebenskraft"
+      },
+      {
+        "id": "the-three-principles",
+        "title": "The Three Principles"
+      },
+      {
+        "id": "five-phases-of-life-expression",
+        "title": "Five Phases of Life Expression"
+      },
+      {
+        "id": "the-seven-forces",
+        "title": "The Seven Forces"
+      },
+      {
+        "id": "twelve-channels-of-life-expression",
+        "title": "Twelve Channels of Life Expression"
+      },
+      {
+        "id": "correlation-of-sound-and-color",
+        "title": "Correlation of Sound and Color"
+      },
+      {
+        "id": "symbolism-of-numbers",
+        "title": "Symbolism of Numbers"
+      },
+      {
+        "id": "the-wisdom-alphabet",
+        "title": "The Wisdom Alphabet"
+      },
+      {
+        "id": "an-outline-of-the-qabalah",
+        "title": "An Outline of the Qabalah"
+      },
+      {
+        "id": "the-tree-of-life",
+        "title": "The Tree of Life"
+      }
+    ]
+  },
+  {
+    "id": "section-b",
+    "label": "Section B",
+    "title": "Introduction",
+    "unitLabel": "Lesson",
+    "lessons": [
+      {
+        "id": "bondage",
+        "title": "Bondage"
+      },
+      {
+        "id": "awakening",
+        "title": "Awakening"
+      },
+      {
+        "id": "revelation",
+        "title": "Revelation"
+      },
+      {
+        "id": "organization",
+        "title": "Organization"
+      },
+      {
+        "id": "regeneration",
+        "title": "Regeneration"
+      },
+      {
+        "id": "realization",
+        "title": "Realization"
+      },
+      {
+        "id": "cosmic-consciousness",
+        "title": "Cosmic Consciousness"
+      },
+      {
+        "id": "a-note-on-color",
+        "title": "A Note on Color",
+        "unitLabel": "Supplement"
+      },
+      {
+        "id": "spiritual-or-physical",
+        "title": "Spiritual or Physical?",
+        "unitLabel": "Supplement"
+      },
+      {
+        "id": "the-pi-proportion",
+        "title": "The Pi Proportion",
+        "unitLabel": "Supplement"
+      }
+    ]
+  },
+  {
+    "id": "section-c",
+    "label": "Section C",
+    "title": "Introduction",
+    "unitLabel": "Lesson",
+    "lessons": [
+      {
+        "id": "practice-of-concentration",
+        "title": "Practice of Concentration"
+      },
+      {
+        "id": "qabalistic-meditation",
+        "title": "Qabalistic Meditation"
+      },
+      {
+        "id": "the-power-of-the-mind",
+        "title": "The Power of the Mind"
+      },
+      {
+        "id": "watchful-introspection",
+        "title": "Watchful Introspection"
+      },
+      {
+        "id": "contemplations-of-the-adepti",
+        "title": "Contemplations of the Adepti"
+      },
+      {
+        "id": "evolution-of-homo-spiritualis",
+        "title": "Evolution of Homo Spiritualis"
+      },
+      {
+        "id": "mastership",
+        "title": "Mastership"
+      },
+      {
+        "id": "the-true-creative-self",
+        "title": "The True Creative Self"
+      },
+      {
+        "id": "the-perfect-stone",
+        "title": "The Perfect Stone"
+      }
+    ]
+  },
+  {
+    "id": "section-d",
+    "label": "Section D",
+    "title": "Introduction",
+    "unitLabel": "Lesson",
+    "lessons": [
+      {
+        "id": "the-secret-force",
+        "title": "The Secret Force"
+      },
+      {
+        "id": "the-magic-circle",
+        "title": "The Magic Circle"
+      },
+      {
+        "id": "the-magical-altar",
+        "title": "The Magical Altar"
+      },
+      {
+        "id": "platonic-solids",
+        "title": "Platonic Solids"
+      },
+      {
+        "id": "magical-instruments-and-vestments",
+        "title": "Magical Instruments and Vestments"
+      },
+      {
+        "id": "the-four-maxims",
+        "title": "The Four Maxims"
+      },
+      {
+        "id": "the-great-arcanum",
+        "title": "The Great Arcanum"
+      },
+      {
+        "id": "the-chaldean-oracles",
+        "title": "The Chaldean Oracles",
+        "unitLabel": "Supplement"
+      }
+    ]
+  },
+  {
+    "id": "section-first",
+    "label": "Section First",
+    "title": "Tarot Instruction",
+    "unitLabel": "Lesson",
+    "lessons": [
+      {
+        "id": "the-object-of-tarot-practice",
+        "title": "The Object of Tarot Practice"
+      },
+      {
+        "id": "the-symbolism-of-numbers",
+        "title": "The Symbolism of Numbers"
+      },
+      {
+        "id": "the-life-power",
+        "title": "The Life Power"
+      },
+      {
+        "id": "self-consciousness",
+        "title": "Self-Consciousness"
+      },
+      {
+        "id": "sub-consciousness",
+        "title": "Sub-Consciousness"
+      },
+      {
+        "id": "creative-imagination",
+        "title": "Creative Imagination"
+      },
+      {
+        "id": "reason",
+        "title": "Reason"
+      },
+      {
+        "id": "intuition",
+        "title": "Intuition"
+      },
+      {
+        "id": "discrimination",
+        "title": "Discrimination"
+      },
+      {
+        "id": "will-power",
+        "title": "Will Power"
+      },
+      {
+        "id": "the-secret-power",
+        "title": "The Secret Power"
+      },
+      {
+        "id": "response",
+        "title": "Response"
+      },
+      {
+        "id": "rotation",
+        "title": "Rotation"
+      },
+      {
+        "id": "action-equilibrium",
+        "title": "Action-Equilibrium"
+      },
+      {
+        "id": "reversal",
+        "title": "Reversal"
+      },
+      {
+        "id": "transformation",
+        "title": "Transformation"
+      },
+      {
+        "id": "verification",
+        "title": "Verification"
+      },
+      {
+        "id": "bondage",
+        "title": "Bondage"
+      },
+      {
+        "id": "awakening",
+        "title": "Awakening"
+      },
+      {
+        "id": "revelation",
+        "title": "Revelation"
+      },
+      {
+        "id": "organization",
+        "title": "Organization"
+      },
+      {
+        "id": "regeneration",
+        "title": "Regeneration"
+      },
+      {
+        "id": "realization",
+        "title": "Realization"
+      },
+      {
+        "id": "cosmic-consciousness",
+        "title": "Cosmic Consciousness"
+      }
+    ]
+  },
+  {
+    "id": "section-second",
+    "label": "Section Second",
+    "title": "Tarot Instruction",
+    "unitLabel": "Lesson",
+    "lessons": [
+      {
+        "id": "the-hidden-force",
+        "title": "The Hidden Force"
+      },
+      {
+        "id": "the-true-magic",
+        "title": "The True Magic"
+      },
+      {
+        "id": "tableau-1",
+        "title": "Tableau 1"
+      },
+      {
+        "id": "tableau-2",
+        "title": "Tableau 2"
+      },
+      {
+        "id": "tableau-3",
+        "title": "Tableau 3"
+      },
+      {
+        "id": "tableau-4",
+        "title": "Tableau 4"
+      },
+      {
+        "id": "tableau-5",
+        "title": "Tableau 5"
+      },
+      {
+        "id": "tableau-6",
+        "title": "Tableau 6"
+      },
+      {
+        "id": "tableau-7",
+        "title": "Tableau 7"
+      },
+      {
+        "id": "tableau-8",
+        "title": "Tableau 8"
+      },
+      {
+        "id": "tableau-9",
+        "title": "Tableau 9"
+      },
+      {
+        "id": "tableau-10",
+        "title": "Tableau 10"
+      },
+      {
+        "id": "tableau-11",
+        "title": "Tableau 11"
+      },
+      {
+        "id": "tableau-12",
+        "title": "Tableau 12"
+      },
+      {
+        "id": "tableau-13",
+        "title": "Tableau 13"
+      },
+      {
+        "id": "tableau-14",
+        "title": "Tableau 14"
+      },
+      {
+        "id": "tableau-15",
+        "title": "Tableau 15"
+      },
+      {
+        "id": "tableau-16",
+        "title": "Tableau 16"
+      },
+      {
+        "id": "tableau-17",
+        "title": "Tableau 17"
+      },
+      {
+        "id": "tableau-18",
+        "title": "Tableau 18"
+      },
+      {
+        "id": "tableau-19",
+        "title": "Tableau 19"
+      },
+      {
+        "id": "tableau-20",
+        "title": "Tableau 20"
+      },
+      {
+        "id": "tableau-21",
+        "title": "Tableau 21"
+      },
+      {
+        "id": "tarot-groups",
+        "title": "Tarot Groups",
+        "unitLabel": "Supplement"
+      }
+    ]
+  },
+  {
+    "id": "section-final",
+    "label": "Section Final",
+    "title": "Hermetic Alchemy",
+    "unitLabel": "Lesson",
+    "lessons": [
+      {
+        "id": "what-alchemy-really-is",
+        "title": "What Alchemy Really Is"
+      },
+      {
+        "id": "the-first-matter",
+        "title": "The First Matter 1"
+      },
+      {
+        "id": "the-first-matter-continued",
+        "title": "The First Matter 2"
+      },
+      {
+        "id": "the-three-principles",
+        "title": "The Three Principles"
+      },
+      {
+        "id": "fire",
+        "title": "Fire"
+      },
+      {
+        "id": "water",
+        "title": "Water"
+      },
+      {
+        "id": "the-alchemical-process-1",
+        "title": "The Alchemical Process 1"
+      },
+      {
+        "id": "the-alchemical-process-2",
+        "title": "The Alchemical Process 2"
+      },
+      {
+        "id": "the-alchemical-process-3",
+        "title": "The Alchemical Process 3"
+      },
+      {
+        "id": "the-alchemical-process-4",
+        "title": "The Alchemical Process 4"
+      }
+    ]
+  },
+  {
+    "id": "seven-stages-of-spiritual-unfoldment",
+    "additional": true,
+    "label": "Seven Stages of Spiritual Unfoldment",
+    "title": "Additional Material",
+    "unitLabel": "Lesson",
+    "lessons": [
+      {
+        "id": "bondage",
+        "title": "Bondage"
+      },
+      {
+        "id": "awakening",
+        "title": "Awakening"
+      },
+      {
+        "id": "revelation",
+        "title": "Revelation"
+      },
+      {
+        "id": "organization",
+        "title": "Organization"
+      },
+      {
+        "id": "regeneration",
+        "title": "Regeneration"
+      },
+      {
+        "id": "realization",
+        "title": "Realization"
+      },
+      {
+        "id": "cosmic-consciousness",
+        "title": "Cosmic Consciousness"
+      }
+    ]
+  },
+  {
+    "id": "correlation-of-sound-and-colour",
+    "additional": true,
+    "label": "Correlation of Sound and Colour",
+    "title": "Additional Material",
+    "unitLabel": "Lesson",
+    "lessons": [
+      {
+        "id": "correlation-of-sound-and-colour",
+        "title": "Correlation of Sound and Colour"
+      },
+      {
+        "id": "diagrams",
+        "title": "Diagrams",
+        "unitLabel": "Supplement"
+      }
+    ]
+  },
+  {
+    "id": "oracle-of-tarot",
+    "additional": true,
+    "label": "Oracle of Tarot",
+    "title": "Additional Material",
+    "unitLabel": "Lesson",
+    "lessons": [
+      {
+        "id": "an-introduction",
+        "title": "An Introduction"
+      },
+      {
+        "id": "the-suit-of-wands",
+        "title": "The Suit of Wands"
+      },
+      {
+        "id": "the-suit-of-cups",
+        "title": "The Suit of Cups"
+      },
+      {
+        "id": "the-suit-of-swords",
+        "title": "The Suit of Swords"
+      },
+      {
+        "id": "the-suit-of-coins",
+        "title": "The Suit of Coins"
+      },
+      {
+        "id": "the-major-trumps",
+        "title": "The Major Trumps"
+      },
+      {
+        "id": "further-stages-of-divination",
+        "title": "Further Stages of Divination"
+      },
+      {
+        "id": "fourth-stage-of-divination",
+        "title": "Fourth Stage of Divination"
+      },
+      {
+        "id": "fifth-stage-of-divination",
+        "title": "Fifth Stage of Divination"
+      },
+      {
+        "id": "final-stage-of-divination",
+        "title": "Final Stage of Divination"
+      }
+    ]
+  }
+]
