@@ -245,10 +245,16 @@ export function tarotGroupsHtml(): string {
     .join("")}</div>`;
 }
 
-export function mdxToHtml(markdown: string): string {
+export function mdxToHtml(markdown: string, footnotes?: string[]): string {
   let lines = markdown.replace(/\r\n/g, "\n").split("\n");
   let out: string[] = [];
   let paragraph: string[] = [];
+  // Footnote definitions are collected (shared across recursive calls via the
+  // accumulator) and emitted as one block at the end of the outermost call —
+  // end-of-lesson notes under a rule, matching the website's GFM treatment.
+  // Chrome's print pipeline can't do true bottom-of-page footnotes
+  // (float: footnote is Prince/WeasyPrint-only).
+  let notes = footnotes ?? [];
 
   let flushParagraph = () => {
     if (paragraph.length === 0) return;
@@ -287,7 +293,7 @@ export function mdxToHtml(markdown: string): string {
       }
       i++; // consume the closing </KeepTogether>
       out.push(
-        `<div class="keep-together">\n${mdxToHtml(inner.join("\n"))}\n</div>`,
+        `<div class="keep-together">\n${mdxToHtml(inner.join("\n"), notes)}\n</div>`,
       );
       continue;
     }
@@ -326,7 +332,7 @@ export function mdxToHtml(markdown: string): string {
     let footnoteDef = trimmed.match(/^\[\^([^\]]+)\]:\s*(.+)$/);
     if (footnoteDef) {
       flushParagraph();
-      out.push(
+      notes.push(
         `<p class="footnote"><sup>${escapeHtml(footnoteDef[1])}</sup> ${inlineMarkdown(footnoteDef[2])}</p>`,
       );
       continue;
@@ -350,7 +356,9 @@ export function mdxToHtml(markdown: string): string {
       // has blockquote lines. Recurse so the inner quote becomes a nested
       // <blockquote> instead of leaking its `>` as literal text.
       if (quoteLines.some((ql) => /^>\s?/.test(ql.trim()))) {
-        out.push(`<blockquote>${mdxToHtml(quoteLines.join("\n"))}</blockquote>`);
+        out.push(
+          `<blockquote>${mdxToHtml(quoteLines.join("\n"), notes)}</blockquote>`,
+        );
         continue;
       }
       // One <p> per quotation paragraph (split on blank quote lines) so a long
@@ -409,6 +417,9 @@ export function mdxToHtml(markdown: string): string {
   }
 
   flushParagraph();
+  if (!footnotes && notes.length > 0) {
+    out.push(`<div class="footnotes">\n${notes.join("\n")}\n</div>`);
+  }
   return out.join("\n");
 }
 
@@ -657,6 +668,20 @@ figcaption {
   border: 0.25pt solid #d9d1c2;
   padding: 0.012in 0;
   text-align: center;
+}
+/* End-of-lesson notes: a classic short separator rule, then the collected
+ * footnotes in smaller muted type. Kept whole — a split note reads badly and
+ * the blocks are always short. */
+.footnotes {
+  break-inside: avoid;
+  margin-top: 0.32in;
+}
+.footnotes::before {
+  border-top: 1pt solid #bdb4a3;
+  content: "";
+  display: block;
+  margin-bottom: 0.1in;
+  width: 2.2in;
 }
 .footnote {
   color: #4a4438;

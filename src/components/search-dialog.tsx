@@ -10,7 +10,8 @@
 import { useLocaleRouter } from "@/components/locale-link";
 import { useLocale } from "@/components/locale-provider";
 import { SearchIcon } from "@/icons/search-icon";
-import { searchIndex, type SearchIndex, type SearchResult } from "@/lib/search";
+import { searchIndex, type SearchResult } from "@/lib/search";
+import { useSearchIndex } from "@/lib/use-search-index";
 import { useT } from "@/lib/use-t";
 import {
   Combobox,
@@ -25,25 +26,6 @@ import { clsx } from "clsx";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 
-// Fetched once per session per locale, shared across dialog opens.
-const indexPromises = new Map<string, Promise<SearchIndex>>();
-function loadIndex(locale: string): Promise<SearchIndex> {
-  let promise = indexPromises.get(locale);
-  if (!promise) {
-    promise = fetch(
-      `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/search-index.${locale}.json`,
-    ).then((res) => {
-      if (!res.ok) {
-        indexPromises.delete(locale);
-        throw new Error(`search index: HTTP ${res.status}`);
-      }
-      return res.json();
-    });
-    indexPromises.set(locale, promise);
-  }
-  return promise;
-}
-
 export default function SearchDialog({
   open,
   setOpen,
@@ -56,24 +38,7 @@ export default function SearchDialog({
   const locale = useLocale();
   let pathname = usePathname();
   let [query, setQuery] = useState("");
-  let [index, setIndex] = useState<SearchIndex>();
-  let [failed, setFailed] = useState(false);
-
-  useEffect(() => {
-    if (!open || index) return;
-    let cancelled = false;
-    loadIndex(locale).then(
-      (idx) => {
-        if (!cancelled) setIndex(idx);
-      },
-      () => {
-        if (!cancelled) setFailed(true);
-      },
-    );
-    return () => {
-      cancelled = true;
-    };
-  }, [open, index, locale]);
+  const { status, index, retry } = useSearchIndex(locale);
 
   // Close (and reset) when navigation completes — but not on mount, which
   // happens the moment the user first opens the dialog.
@@ -106,7 +71,7 @@ export default function SearchDialog({
         <DialogPanel className="mx-auto transform-gpu overflow-hidden rounded-lg bg-white shadow-xl ring ring-gray-950/10 sm:max-w-xl dark:bg-gray-900 dark:ring-white/10">
           <Combobox<SearchResult>
             onChange={(result) => {
-              if (result) router.push(result.lesson.href);
+              if (result) router.push(result.doc.href);
             }}
           >
             <div className="flex items-center gap-3 px-4 py-3">
@@ -127,7 +92,7 @@ export default function SearchDialog({
                   >
                     {results.map((result) => (
                       <ComboboxOption
-                        key={result.lesson.href}
+                        key={result.doc.href}
                         value={result}
                         className={clsx(
                           "flex cursor-default items-baseline gap-x-3 px-4 py-2",
@@ -135,24 +100,35 @@ export default function SearchDialog({
                         )}
                       >
                         <span className="flex-auto truncate text-sm/6 text-gray-950 dark:text-white">
-                          {result.lesson.title}
+                          {result.doc.title}
                         </span>
                         <span className="shrink-0 text-xs/6 text-gray-500 dark:text-gray-400">
-                          {result.lesson.section}
+                          {result.doc.section}
                         </span>
                         <span className="w-10 shrink-0 text-right text-xs/6 text-gray-400 tabular-nums dark:text-gray-500">
-                          {result.count}&times;
+                          {result.phrase || result.count}&times;
                         </span>
                       </ComboboxOption>
                     ))}
                   </ComboboxOptions>
+                ) : status === "error" ? (
+                  <p className="px-4 py-6 text-center text-sm/6 text-gray-500 dark:text-gray-400">
+                    {t("search.unavailable")}{" "}
+                    <button
+                      type="button"
+                      onClick={retry}
+                      className="font-medium text-gray-950 underline dark:text-white"
+                    >
+                      {t("search.retry")}
+                    </button>
+                  </p>
+                ) : status === "loading" ? (
+                  <p className="px-4 py-6 text-center text-sm/6 text-gray-500 dark:text-gray-400">
+                    {t("search.loading")}
+                  </p>
                 ) : (
                   <p className="px-4 py-6 text-center text-sm/6 text-gray-500 dark:text-gray-400">
-                    {failed
-                      ? t("search.unavailable")
-                      : index
-                        ? tf("search.noResults", { query: query.trim() })
-                        : t("search.loading")}
+                    {tf("search.noResults", { query: query.trim() })}
                   </p>
                 )}
               </div>

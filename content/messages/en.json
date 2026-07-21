@@ -25,5 +25,6 @@
   "search.loading": "Loading the index…",
   "search.noResults": "No lessons mention “{query}”.",
   "search.placeholder": "Search the lessons...",
+  "search.retry": "Retry",
   "search.unavailable": "Search is unavailable right now."
 }
