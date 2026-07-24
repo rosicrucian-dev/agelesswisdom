@@ -43,7 +43,7 @@ export default async function Page({
         <div className="prose">
           <Content />
         </div>
-        <br/>
+        <br/><br/>
         <a href="https://rosicrucian.dev" className="inline-block">
           <img
             src="/avatar.png"
