@@ -12,6 +12,24 @@
 import { execFileSync } from "node:child_process";
 import * as fs from "node:fs";
 import * as path from "node:path";
+import { retext } from "retext";
+import retextSmartypants from "retext-smartypants";
+
+// Smart typography — the SAME engine and options as the web (remark-smartypants
+// in next.config.mjs), so the site and the exported PDFs render identical marks:
+// straight quotes -> curly, `--` -> em dash (`inverted`, Case's typewriter
+// convention), `...` -> ellipsis. processSync keeps it usable in this synchronous
+// line-based renderer. `backticks: false` leaves ``-quote conversion off (we use
+// backticks only for code).
+const smartypantsProcessor = retext().use(retextSmartypants, {
+  quotes: true,
+  ellipses: true,
+  backticks: false,
+  dashes: "inverted",
+});
+function smartTypography(text: string): string {
+  return String(smartypantsProcessor.processSync(text));
+}
 
 export const ROOT = path.join(import.meta.dirname, "..", "..");
 export const PUBLIC_DIR = path.join(ROOT, "public");
@@ -92,21 +110,32 @@ export function inlineMarkdown(value: string): string {
   // Runs after image extraction so image alt/src are already stashed away.
   value = value.replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1");
 
+  // Inline code -> stashed as finished HTML BEFORE smart typography, so quotes,
+  // dashes and ellipses inside code are never "curled" (the web's mdast pass
+  // skips code nodes; this keeps the print pass in parity) and its content is
+  // not double-escaped.
+  value = value.replace(/`([^`]+)`/g, (_m, code: string) =>
+    stash(`<code>${escapeHtml(code)}</code>`),
+  );
+
   // Backslash escapes \X (e.g. "19\." in numbered source-fragment lists, or
-  // "\_") -> the literal character, stashed so it survives the emphasis/code
-  // passes below. Covers all ASCII punctuation.
+  // "\_") -> the literal character, stashed so it survives the smart-typography
+  // and emphasis passes below. Covers all ASCII punctuation.
   value = value.replace(
     /\\([\x21-\x2f\x3a-\x40\x5b-\x60\x7b-\x7e])/g,
     (_match, ch: string) => stash(escapeHtml(ch)),
   );
+
+  // Smart typography (quotes/dashes/ellipses). Runs on the prose text with code
+  // and other literals already stashed as placeholders (which survive the pass).
+  value = smartTypography(value);
 
   value = escapeHtml(value);
   value = value
     .replace(/&lt;br\s*\/?&gt;/g, "<br>")
     .replace(/&lt;sup&gt;([\s\S]*?)&lt;\/sup&gt;/g, "<sup>$1</sup>")
     .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
-    .replace(/\*([^*\n]+)\*/g, "<em>$1</em>")
-    .replace(/`([^`]+)`/g, "<code>$1</code>");
+    .replace(/\*([^*\n]+)\*/g, "<em>$1</em>");
   value = value.replace(
     /[♈♉♊♋♌♍♎♏♐♑♒♓☉☾☿♀♂♃♄]/g,
     (symbol) => `<span class="symbol">${symbol}</span>`,

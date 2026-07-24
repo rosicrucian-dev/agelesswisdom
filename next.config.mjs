@@ -4,7 +4,14 @@ const withMDX = createMDX({
   extension: /\.mdx?$/,
   options: {
     // Plugin names as strings so the options stay serializable for Turbopack.
-    remarkPlugins: [["remark-gfm"]],
+    // remark-smartypants gives typographic quotes/dashes/ellipses; `inverted`
+    // maps `--` -> em dash (Case's typewriter convention). The print pipeline
+    // (scripts/print/render.ts) runs the SAME retext-smartypants engine with the
+    // SAME options, so the site and the exported PDFs render identical marks.
+    remarkPlugins: [
+      ["remark-gfm"],
+      ["remark-smartypants", { dashes: "inverted", backticks: false }],
+    ],
     rehypePlugins: [],
   },
 });
