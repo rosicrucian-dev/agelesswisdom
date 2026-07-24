@@ -298,6 +298,26 @@ export function mdxToHtml(markdown: string, footnotes?: string[]): string {
       continue;
     }
 
+    // <EditorNote>…</EditorNote> — a one-line editorial aside (the editors'
+    // voice, not Case's text: a missing figure, a gloss). Web counterpart is
+    // the EditorNote component in mdx-components.tsx; both render `.editor-note`.
+    let editorNote = trimmed.match(/^<EditorNote>([\s\S]*)<\/EditorNote>$/);
+    if (editorNote) {
+      flushParagraph();
+      out.push(`<p class="editor-note">${inlineMarkdown(editorNote[1])}</p>`);
+      continue;
+    }
+
+    // <Cite>…</Cite> — a quotation's source attribution. A muted, right-aligned
+    // em-dash line kept with the quote it follows (break-before: avoid, so it
+    // can never orphan onto the next page). Web counterpart: the Cite component.
+    let cite = trimmed.match(/^<Cite>([\s\S]*)<\/Cite>$/);
+    if (cite) {
+      flushParagraph();
+      out.push(`<p class="quote-cite">— ${inlineMarkdown(cite[1])}</p>`);
+      continue;
+    }
+
     let figure = imageFigure(trimmed);
     if (figure) {
       flushParagraph();
@@ -375,9 +395,13 @@ export function mdxToHtml(markdown: string, footnotes?: string[]): string {
         } else curPara.push(ql);
       }
       if (curPara.length) quoteParas.push(curPara);
+      // Join with a space (like the body-paragraph path), NOT "<br>": verse
+      // carries its own explicit `<br />` per line, so a joiner break would
+      // double every line; prose quote paragraphs are a single source line and
+      // are unaffected. This keeps quoted verse single-spaced and matches web.
       out.push(
         `<blockquote>${quoteParas
-          .map((pl) => `<p>${inlineMarkdown(pl.join("<br>"))}</p>`)
+          .map((pl) => `<p>${inlineMarkdown(pl.join(" "))}</p>`)
           .join("")}</blockquote>`,
       );
       continue;
@@ -555,6 +579,13 @@ blockquote p {
 blockquote p + p {
   margin-top: 0.14in;
 }
+/* Quoted verse: hang the turnover (wrapped) lines so a run-over reads as a
+   continuation, not a new verse line (professional poetry setting). :has(br)
+   scopes this to verse blockquotes; prose quotes carry no <br> and stay flush. */
+blockquote:has(br) p {
+  padding-left: 1.5em;
+  text-indent: -1.5em;
+}
 /* Fenced monospace blocks — the Oracle-of-Tarot aligned attribution lists,
  * card spreads and dot figures. white-space: pre keeps their column alignment;
  * a monospace face at a small size keeps the lines on the page. */
@@ -623,6 +654,26 @@ figcaption {
   font-size: 0.84em;
   font-style: italic;
   margin-top: 0.05in;
+}
+/* Editorial apparatus (the editors' voice, not Case's text) — matches the
+   figcaption secondary tone. Set by the EditorNote component / <EditorNote> tag. */
+.editor-note {
+  color: #766f61;
+  font-size: 0.84em;
+  font-style: italic;
+}
+/* Quotation source attribution — muted, right-aligned, roman (contrasting the
+   italic blockquote). break-before: avoid binds it to the quote's last line so
+   Chrome never strands it on the next page. Scoped under .lesson-body to beat
+   the justify rule on .lesson-body p. */
+.lesson-body .quote-cite {
+  break-before: avoid;
+  page-break-before: avoid;
+  color: #766f61;
+  font-size: 0.9em;
+  font-style: normal;
+  margin-top: 0.06in;
+  text-align: right;
 }
 .inline-image {
   display: inline-block;

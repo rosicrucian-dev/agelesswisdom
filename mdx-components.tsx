@@ -112,6 +112,21 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     // verse) whole on one page in the PDF. The web has no pages, so it renders
     // its children unchanged — a pure pass-through with zero DOM impact.
     KeepTogether: ({ children }: { children?: ReactNode }) => <>{children}</>,
+    // Editorial apparatus: a short aside in the editors' voice — NOT part of
+    // Case's transcribed text. Set apart in a muted, secondary style. Use for a
+    // missing figure ("[This image is unavailable.]"), a bracketed gloss, or an
+    // editorial correction. Handled for the PDF export in scripts/print/render.ts.
+    EditorNote: ({ children }: { children?: ReactNode }) => (
+      <p className="editor-note">{children}</p>
+    ),
+    // Source attribution for a quotation. Placed AFTER the blockquote (HTML5
+    // keeps the citation outside <blockquote>) as a muted, right-aligned
+    // em-dash line. Bound to the quote so it never breaks onto the next page in
+    // the PDFs (see .quote-cite in scripts/print/render.ts). Authors write just
+    // the source: <Cite>Sepher Yetzirah, page 61</Cite>.
+    Cite: ({ children }: { children?: ReactNode }) => (
+      <p className="quote-cite">— {children}</p>
+    ),
     ...components,
   };
 }

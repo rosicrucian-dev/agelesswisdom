@@ -208,6 +208,36 @@
     }
   }
 
+  /* Quoted verse: hang the turnover (wrapped) lines so a run-over reads as a
+     continuation, not a new verse line — the professional poetry-setting rule.
+     Scoped via :has(br) to blockquotes that carry hard line breaks (verse),
+     leaving prose quotes (which have no <br>) flush. */
+  blockquote:has(br) p {
+    padding-left: 1.5em;
+    text-indent: -1.5em;
+  }
+
+  /* Editorial apparatus — the editors' voice, not the transcribed text.
+     A muted, italic aside (missing figure, gloss, correction). gray-500 sits
+     a step lighter than the body in light mode and a step dimmer in dark, so it
+     recedes from Case's text in both themes without an override. */
+  .editor-note {
+    font-style: italic;
+    font-size: var(--text-sm);
+    color: var(--color-gray-500);
+  }
+
+  /* Source attribution for a quotation — a muted, right-aligned em-dash line
+     that follows the blockquote. Roman (not italic) to contrast the italic
+     quote above it, and pulled snug to that quote with a small top margin. */
+  .quote-cite {
+    margin-top: --spacing(2);
+    text-align: right;
+    font-style: normal;
+    font-size: var(--text-sm);
+    color: var(--color-gray-500);
+  }
+
   hr {
     border: 0;
     border-top: 1px solid --alpha(var(--color-gray-950) / 10%);
