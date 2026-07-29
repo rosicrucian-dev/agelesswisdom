@@ -155,8 +155,9 @@ export default async function Page({
               hasText={hasText}
               eyebrow={
                 <p className="text-sm/7 font-semibold tracking-widest text-gray-500 uppercase dark:text-gray-400">
-                  {lesson.section.label} · {position.unit} {position.number} of{" "}
-                  {position.total}
+                  {lesson.unnumbered
+                    ? lesson.section.label
+                    : `${lesson.section.label} · ${position.unit} ${position.number} of ${position.total}`}
                 </p>
               }
             >

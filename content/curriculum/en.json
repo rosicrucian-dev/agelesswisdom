@@ -443,6 +443,7 @@
   {
     "id": "seven-stages-of-spiritual-unfoldment",
     "additional": true,
+    "hidden": true,
     "label": "Seven Stages of Spiritual Unfoldment",
     "title": "Additional Material",
     "unitLabel": "Lesson",
@@ -486,7 +487,8 @@
     "lessons": [
       {
         "id": "correlation-of-sound-and-colour",
-        "title": "Correlation of Sound and Colour"
+        "title": "Correlation of Sound and Colour",
+        "unnumbered": true
       },
       {
         "id": "diagrams",

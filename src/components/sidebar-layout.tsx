@@ -79,9 +79,11 @@ function CourseNavigation({
                     onNavigate={onNavigate}
                     className="group/link aria-[current=page]:font-medium aria-[current=page]:text-gray-950 dark:aria-[current=page]:text-white"
                   >
-                    <span className="block text-xs/5 font-normal text-gray-400 group-aria-[current=page]/link:text-gray-500 dark:text-gray-500 dark:group-aria-[current=page]/link:text-gray-400">
-                      {unit}
-                    </span>
+                    {unit && (
+                      <span className="block text-xs/5 font-normal text-gray-400 group-aria-[current=page]/link:text-gray-500 dark:text-gray-500 dark:group-aria-[current=page]/link:text-gray-400">
+                        {unit}
+                      </span>
+                    )}
                     {title && <span className="block">{title}</span>}
                   </Link>
                 </li>

@@ -15,6 +15,11 @@ export type Lesson = {
    *  "Supplement"s folded onto the end of Section A's "Lesson"s. Items sharing
    *  a unit label are numbered independently within the section. */
   unitLabel?: string;
+  /** When set, the item carries no "Lesson N"/"Supplement N" prefix anywhere —
+   *  it displays as its bare title. For pieces published as standalone works
+   *  (e.g. the "Correlation of Sound and Colour" pamphlet) rather than numbered
+   *  lessons. Excluded from its unit's numbering so siblings count from 1. */
+  unnumbered?: boolean;
 };
 
 export type Section = {
@@ -56,7 +61,9 @@ export function lessonUnitPosition(
   lesson: Lesson,
 ): { unit: string; number: number; total: number } {
   let unit = unitLabelOf(section, lesson);
-  let group = section.lessons.filter((l) => unitLabelOf(section, l) === unit);
+  let group = section.lessons.filter(
+    (l) => !l.unnumbered && unitLabelOf(section, l) === unit,
+  );
   return {
     unit,
     number: group.findIndex(({ id }) => id === lesson.id) + 1,
@@ -65,19 +72,22 @@ export function lessonUnitPosition(
 }
 
 /** Navigational title with the item's number, e.g. "Lesson 1 - The Life Power",
- *  or just "Lesson 1" when the lesson has no distinct title. */
+ *  or just "Lesson 1" when the lesson has no distinct title. Unnumbered items
+ *  (standalone works) render as their bare title. */
 export function numberedLessonTitle(section: Section, lesson: Lesson): string {
   let { unit, title } = lessonTitleParts(section, lesson);
+  if (!unit) return title ?? unitLabelOf(section, lesson);
   return title ? `${unit} - ${title}` : unit;
 }
 
 /** The unit label with number ("Lesson 1", "Supplement 2") and the lesson's
  *  title as separate strings, for two-line rendering. `title` is undefined for
- *  untitled lessons. */
+ *  untitled lessons; `unit` is undefined for unnumbered items (no prefix). */
 export function lessonTitleParts(
   section: Section,
   lesson: Lesson,
-): { unit: string; title?: string } {
+): { unit?: string; title?: string } {
+  if (lesson.unnumbered) return { title: lesson.title };
   let { unit, number } = lessonUnitPosition(section, lesson);
   return { unit: `${unit} ${number}`, title: lesson.title };
 }
