@@ -2,7 +2,6 @@
   {
     "id": "section-a",
     "label": "Section A",
-    "title": "Introduction",
     "unitLabel": "Lesson",
     "lessons": [
       {
@@ -50,7 +49,6 @@
   {
     "id": "section-b",
     "label": "Section B",
-    "title": "Introduction",
     "unitLabel": "Lesson",
     "lessons": [
       {
@@ -101,7 +99,6 @@
   {
     "id": "section-c",
     "label": "Section C",
-    "title": "Introduction",
     "unitLabel": "Lesson",
     "lessons": [
       {
@@ -145,7 +142,6 @@
   {
     "id": "section-d",
     "label": "Section D",
-    "title": "Introduction",
     "unitLabel": "Lesson",
     "lessons": [
       {
@@ -185,8 +181,8 @@
   },
   {
     "id": "section-first",
-    "label": "Section First",
-    "title": "Tarot Instruction",
+    "label": "Tarot Instruction – First Section",
+    "shortLabel": "Tarot First",
     "unitLabel": "Lesson",
     "lessons": [
       {
@@ -289,8 +285,8 @@
   },
   {
     "id": "section-second",
-    "label": "Section Second",
-    "title": "Tarot Instruction",
+    "label": "Tarot Instruction – Second Section",
+    "shortLabel": "Tarot Second",
     "unitLabel": "Lesson",
     "lessons": [
       {
@@ -394,8 +390,8 @@
   },
   {
     "id": "section-final",
-    "label": "Section Final",
-    "title": "Hermetic Alchemy",
+    "label": "Hermetic Science and Practice",
+    "shortLabel": "Hermetic Science",
     "unitLabel": "Lesson",
     "lessons": [
       {
@@ -445,7 +441,6 @@
     "additional": true,
     "hidden": true,
     "label": "Seven Stages of Spiritual Unfoldment",
-    "title": "Additional Material",
     "unitLabel": "Lesson",
     "lessons": [
       {
@@ -482,7 +477,6 @@
     "id": "correlation-of-sound-and-colour",
     "additional": true,
     "label": "Correlation of Sound and Colour",
-    "title": "Additional Material",
     "unitLabel": "Lesson",
     "lessons": [
       {
@@ -501,7 +495,6 @@
     "id": "oracle-of-tarot",
     "additional": true,
     "label": "Oracle of Tarot",
-    "title": "Additional Material",
     "unitLabel": "Lesson",
     "lessons": [
       {

@@ -62,7 +62,7 @@ export * from "./curriculum-helpers.ts";
 
 // Display fields a translation may override; everything else is
 // structure, read from English only.
-const SECTION_DISPLAY = ["label", "title", "description", "unitLabel"];
+const SECTION_DISPLAY = ["label", "shortLabel", "description", "unitLabel"];
 const LESSON_DISPLAY = ["title", "description", "unitLabel"];
 
 function readCurriculum(locale: string): Section[] | null {

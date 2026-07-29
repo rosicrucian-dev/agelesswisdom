@@ -187,9 +187,7 @@ function buildMerged(groups: Grouped[]) {
     let lessonPages = 0;
 
     for (let { section, lessons } of groups) {
-      let secTitle = section.title
-        ? `${section.label} — ${section.title}`
-        : section.label;
+      let secTitle = section.label;
       // Parent entry, collapsed, anchored to its first lesson's first page;
       // /Count -N makes the next N entries its children.
       marks.push(

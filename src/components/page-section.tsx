@@ -2,12 +2,10 @@ import type React from "react";
 
 export function PageSection({
   title,
-  subtitle,
   children,
   ...props
 }: Omit<React.ComponentProps<"section">, "title"> & {
   title: React.ReactNode;
-  subtitle?: React.ReactNode;
 }) {
   return (
     <section
@@ -18,11 +16,6 @@ export function PageSection({
         <div className="-mt-px inline-flex border-t border-gray-950 pt-px dark:border-white">
           <div className="pt-4 text-sm/7 font-semibold text-gray-950 sm:pt-10 dark:text-white">
             {title}
-            {subtitle && (
-              <div className="text-xs/5 font-medium tracking-wide text-gray-400 uppercase dark:text-gray-500">
-                {subtitle}
-              </div>
-            )}
           </div>
         </div>
       </div>

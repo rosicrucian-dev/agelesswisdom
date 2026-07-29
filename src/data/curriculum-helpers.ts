@@ -26,9 +26,15 @@ export type Section = {
   /** Stable id — ALSO the URL segment and the on-disk directory name.
    *  Locale-independent by design (never derived from display text). */
   id: string;
-  /** Short eyebrow label, e.g. "Section A". Display text — translatable. */
+  /** The section's canonical display name, e.g. "Section A" or
+   *  "Tarot Instruction – First Section". Shown in the sidebar, the overview,
+   *  and page titles. Display text — translatable. */
   label: string;
-  title?: string | null;
+  /** Optional shorter name for cramped contexts (breadcrumb, lesson eyebrow)
+   *  where the full `label` runs long, e.g. "Tarot First" for
+   *  "Tarot Instruction – First Section". Falls back to `label` when absent.
+   *  Display text — translatable. */
+  shortLabel?: string;
   description?: string;
   /** Noun used when numbering items, e.g. "Lesson 1", "Supplement 1".
    *  Display text — translatable ("Lektion 1"). */
@@ -96,6 +102,12 @@ export function lessonTitleParts(
  *  (translatable) label. */
 export function sectionUrlSlug(section: Section): string {
   return section.id;
+}
+
+/** The section name to use in cramped contexts (breadcrumb, lesson eyebrow):
+ *  its `shortLabel` alias when set, else the full `label`. */
+export function sectionShortLabel(section: Section): string {
+  return section.shortLabel ?? section.label;
 }
 
 export function lessonUrl(section: Section, lesson: Lesson): string {

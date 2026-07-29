@@ -160,7 +160,6 @@ export default async function Page({
                     <PageSection
                       id={sectionUrlSlug(section)}
                       title={section.label}
-                      subtitle={section.title}
                     >
                       <div className="max-w-2xl">
                         <ol className="space-y-4">

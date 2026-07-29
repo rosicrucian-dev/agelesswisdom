@@ -48,11 +48,6 @@ function CourseNavigation({
     <div className={clsx(className, "space-y-8")}>
       {sections.map((section) => (
         <div key={section.id}>
-          {section.title && (
-            <p className="text-xs/5 font-medium tracking-wide text-gray-400 uppercase dark:text-gray-500">
-              {section.title}
-            </p>
-          )}
           <h2 className="text-base/7 font-semibold text-pretty text-gray-950 sm:text-sm/6 dark:text-white">
             {section.label}
           </h2>

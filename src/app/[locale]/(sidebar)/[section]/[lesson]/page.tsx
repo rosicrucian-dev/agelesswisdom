@@ -17,6 +17,7 @@ import {
   lessonUnitPosition,
   lessonUrl,
   numberedLessonTitle,
+  sectionShortLabel,
   sectionUrlSlug,
 } from "@/data/curriculum";
 import { DEFAULT_LOCALE, toLocale } from "@/lib/locales";
@@ -124,7 +125,7 @@ export default async function Page({
             href={`/#${sectionUrlSlug(lesson.section)}`}
             className="max-md:hidden"
           >
-            {lesson.section.label}
+            {sectionShortLabel(lesson.section)}
           </Breadcrumb>
           <BreadcrumbSeparator />
           <Breadcrumb>{numberedLessonTitle(lesson.section, lesson)}</Breadcrumb>
@@ -156,8 +157,8 @@ export default async function Page({
               eyebrow={
                 <p className="text-sm/7 font-semibold tracking-widest text-gray-500 uppercase dark:text-gray-400">
                   {lesson.unnumbered
-                    ? lesson.section.label
-                    : `${lesson.section.label} · ${position.unit} ${position.number} of ${position.total}`}
+                    ? sectionShortLabel(lesson.section)
+                    : `${sectionShortLabel(lesson.section)} · ${position.unit} ${position.number} of ${position.total}`}
                 </p>
               }
             >
