@@ -1,0 +1,33 @@
+# Verifies that the site typechecks and builds. Runs for PRs and for pushes
+# to any branch except main (main is covered by the deploy workflow).
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches-ignore:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx tsc --noEmit
+      # The search engine is hand-rolled and duplicated into botatoolbox, so
+      # its invariants are pinned by tests rather than by review.
+      - run: npm test
+      # Fails if a file that must stay byte-identical with botatoolbox has
+      # drifted. Skips cleanly here, where the sibling isn't checked out —
+      # it's a local guard, run before you push.
+      - run: npm run check:shared
+      # Generate the per-lesson PDFs (headless Chrome, pre-installed on the
+      # runner) so the build matches production and PDF-generation breakage is
+      # caught in CI rather than at deploy.
+      - run: npm run pdf:lessons
+      - run: npm run build

@@ -1,0 +1,27 @@
+# Vendored template kits kept for reference only
+catalyst-ui-kit/
+tailwind-plus-compass/
+
+# Source material (not part of the site)
+books/
+ocr/
+
+# Extracted lesson text: content is curated by hand, not reformatted
+content/lessons/
+
+# Build output
+.next/
+.next-verify/
+out/
+
+# Kept BYTE-IDENTICAL with ../botatoolbox (see the header in each), which means
+# they carry that project's formatting — no semicolons, single quotes. Running
+# prettier over them here rewrites every line and silently breaks the
+# invariant, which is exactly what happened once.
+src/lib/search-engine.ts
+src/lib/use-search-index.ts
+src/lib/use-highlight-query.ts
+src/lib/use-snippets.ts
+src/lib/use-chunked-limit.ts
+test/search-engine.test.ts
+scripts/check-shared.ts
