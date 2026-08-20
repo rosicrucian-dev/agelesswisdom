@@ -69,6 +69,13 @@ const bounceScript = `try {
   }
 } catch (e) {}`;
 
+// Cloudflare Web Analytics. The site is DNS-only on Cloudflare — GitHub
+// Pages answers every request directly — so the zone's Web Traffic tab
+// sees nothing and this beacon is the only page-level measurement there
+// is. Production-only, so `next dev` never reports. The token is public
+// by design: it ships in the HTML of every page.
+const CF_BEACON_TOKEN = "d40a37f0b6234a7e8dcf678b73b59ed8";
+
 export default async function LocaleLayout({
   children,
   params,
@@ -94,6 +101,14 @@ export default async function LocaleLayout({
           <div className="isolate">{children}</div>
         </LocaleProvider>
         <ServiceWorkerRegistration />
+        {process.env.NODE_ENV === "production" && (
+          <script
+            type="module"
+            defer
+            src="https://static.cloudflareinsights.com/beacon.min.js"
+            data-cf-beacon={JSON.stringify({ token: CF_BEACON_TOKEN })}
+          />
+        )}
       </body>
     </html>
   );
