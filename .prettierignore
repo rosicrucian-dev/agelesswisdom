@@ -1,11 +1,3 @@
-# Vendored template kits kept for reference only
-catalyst-ui-kit/
-tailwind-plus-compass/
-
-# Source material (not part of the site)
-books/
-ocr/
-
 # Extracted lesson text: content is curated by hand, not reformatted
 content/lessons/
 

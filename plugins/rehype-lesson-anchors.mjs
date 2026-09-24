@@ -30,7 +30,6 @@
  * renderer (scripts/print/render.ts, its own hand-rolled Markdown parser) must
  * reproduce this exact sequence — and that is also the moment to freeze the
  * numbers behind a committed manifest, since a printed citation is permanent.
- * See docs/paragraph-links.md.
  *
  * ## Where the marker can live
  *

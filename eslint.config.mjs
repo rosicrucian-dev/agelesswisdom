@@ -11,10 +11,6 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
-    // Vendored template kits and source material, reference only:
-    "catalyst-ui-kit/**",
-    "tailwind-plus-compass/**",
-    "ocr/**",
   ]),
   {
     rules: {

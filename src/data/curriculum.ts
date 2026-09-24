@@ -40,9 +40,8 @@
  *   restriction, not an oversight — if a future tool or import appears to
  *   be "missing" this lesson, that is correct and intentional; do not add it.
  *
- * The full machine-readable denylist and its lint tripwire live in the local
- * (gitignored) editorial workspace: editorial/excluded-lessons.json, enforced
- * by `npm --prefix editorial run lint:lessons` / `validate:structure`.
+ * The machine-readable denylist that enforces this lives in the local
+ * editorial workspace, outside this repository.
  */
 
 // Relative + extensioned import so the plain-node scripts (search
