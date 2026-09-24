@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/site";
 import { type MetadataRoute } from "next";
 
 // Required by `output: 'export'` for metadata routes — emits a static
@@ -7,6 +8,6 @@ export const dynamic = "force-static";
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: { userAgent: "*", allow: "/" },
-    sitemap: "https://agelesswisdom.school/sitemap.xml",
+    sitemap: `${SITE_URL}/sitemap.xml`,
   };
 }

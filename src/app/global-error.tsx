@@ -1,13 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
-import { isVersionSkewError, recoverFromVersionSkew } from "@/lib/version-skew";
+import {
+  canRecoverFromVersionSkew,
+  recoverFromVersionSkew,
+} from "@/lib/version-skew";
 
 // Root-level last-resort boundary: catches errors in the root layout itself
 // (and anything the segment boundary misses). It REPLACES the root layout, so
 // it renders its own <html>/<body> and can't rely on the app's CSS, fonts, or
-// providers — hence the inline styles. Same version-skew self-heal as
+// providers — hence the inline styles, and hence English only: with no
+// [locale] segment above it there is no locale to translate into. Same version-skew self-heal as
 // (sidebar)/error.tsx; otherwise a minimal Reload / Try again fallback.
 export default function GlobalError({
   error,
@@ -16,12 +20,11 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  const [reloading, setReloading] = useState(() => isVersionSkewError(error));
+  const reloading = canRecoverFromVersionSkew(error);
 
   useEffect(() => {
-    if (!isVersionSkewError(error)) return;
-    if (!recoverFromVersionSkew(error)) setReloading(false);
-  }, [error]);
+    if (reloading) recoverFromVersionSkew(error);
+  }, [error, reloading]);
 
   return (
     <html lang="en">

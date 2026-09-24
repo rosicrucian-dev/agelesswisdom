@@ -1,7 +1,7 @@
 "use client";
 
 // Search trigger (navbar icon + Cmd/Ctrl-K shortcut). Same split as the
-// sister project (bota-toolbox): the dialog is lazy-loaded via next/dynamic
+// sister project (botatoolbox): the dialog is lazy-loaded via next/dynamic
 // so neither its chunk nor the search index is paid for until first use; the
 // keyboard shortcut lives out here in the always-loaded shell so it works
 // before that first load.
@@ -19,10 +19,10 @@ const SearchDialog = dynamic(() => import("./search-dialog"), {
 
 export function Search({ className }: { className?: string }) {
   const { t } = useT();
-  let [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   // The dialog only mounts once search has been used, then stays mounted so
   // the fetched index and dialog state survive re-opens.
-  let [everOpened, setEverOpened] = useState(false);
+  const [everOpened, setEverOpened] = useState(false);
 
   function openSearch() {
     setEverOpened(true);

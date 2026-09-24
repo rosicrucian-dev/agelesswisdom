@@ -1,3 +1,4 @@
+import { SITE_NAME } from "@/lib/site";
 import { type MetadataRoute } from "next";
 
 // Required for static export: this is a route handler under the hood, and
@@ -17,7 +18,7 @@ export const dynamic = "force-static";
 // (Next file conventions), not here.
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "The School of Ageless Wisdom",
+    name: SITE_NAME,
     short_name: "Ageless Wisdom",
     description: "The Early Curriculum of Paul Foster Case",
     start_url: "/",

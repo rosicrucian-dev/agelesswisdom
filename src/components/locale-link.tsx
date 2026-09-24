@@ -9,7 +9,7 @@ import { forwardRef, useMemo } from "react";
 // Locale-aware navigation. All internal links/router pushes go through
 // these (enforced by no-restricted-imports in eslint.config.mjs) so a
 // page rendered under /de/ links within /de/ automatically, while
-// English hrefs pass through byte-identical. Ported from ../bota-toolbox.
+// English hrefs pass through byte-identical. Ported from ../botatoolbox.
 
 type AnchorProps = LinkProps & React.ComponentPropsWithoutRef<"a">;
 

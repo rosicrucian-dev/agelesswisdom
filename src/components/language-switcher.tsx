@@ -9,10 +9,12 @@ import {
   stripLocale,
   type Locale,
 } from "@/lib/locales";
+import { BASE_PATH } from "@/lib/site";
+import { useT } from "@/lib/use-t";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import { usePathname } from "next/navigation";
 
-// Navbar language dropdown, ported from ../bota-toolbox. The button
+// Navbar language dropdown, ported from ../botatoolbox. The button
 // shows the current locale; the menu lists released languages in their
 // own tongue. Picking one saves the preference and jumps to the same
 // page in that locale as a FULL navigation on purpose: a locale switch
@@ -39,6 +41,7 @@ function CheckIcon(props: React.ComponentPropsWithoutRef<"svg">) {
 export function LanguageSwitcher() {
   const locale = useLocale();
   const pathname = usePathname();
+  const { t } = useT();
 
   // With a single released locale there is nothing to switch to — keep
   // the navbar clean until a translation launches.
@@ -48,9 +51,8 @@ export function LanguageSwitcher() {
     if (target === locale) return;
     saveLocalePref(target);
     const { path } = stripLocale(pathname);
-    const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
     window.location.assign(
-      base + localeHref(target, path) + window.location.search,
+      BASE_PATH + localeHref(target, path) + window.location.search,
     );
   }
 
@@ -58,7 +60,7 @@ export function LanguageSwitcher() {
     <Menu>
       <MenuButton
         className="flex h-7 items-center justify-center rounded-md px-1.5 text-xs font-semibold tracking-tight text-gray-950 uppercase hover:bg-gray-950/5 data-open:bg-gray-950/5 dark:text-white dark:hover:bg-white/5 dark:data-open:bg-white/5"
-        aria-label="Language"
+        aria-label={t("language.label")}
       >
         {locale}
       </MenuButton>

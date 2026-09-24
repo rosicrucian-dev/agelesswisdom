@@ -3,7 +3,8 @@
 // trick as global-error.tsx. Plain anchor on purpose: this boundary
 // renders outside the app providers, so a full-page hop home is right.
 // `dark:` styles are prefers-color-scheme media queries, so no theme
-// script is needed.
+// script is needed. English only: the static export has ONE 404.html for
+// every URL, so there is no locale to render it in.
 export default function NotFound() {
   return (
     <html lang="en" className="antialiased dark:bg-gray-950">

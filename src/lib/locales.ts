@@ -1,4 +1,4 @@
-// Locale definitions and URL helpers, ported from ../bota-toolbox (same
+// Locale definitions and URL helpers, ported from ../botatoolbox (same
 // conventions). The site is a static export, so locale routing is
 // purely path-based: German lives under /de/..., and English serves
 // unprefixed at the root (the build generates English under /en/ and
@@ -92,13 +92,16 @@ export function stripLocale(pathname: string): {
   return { locale: DEFAULT_LOCALE, path: pathname };
 }
 
-const PREF_KEY = "botacourse:locale";
+/** localStorage key for the reader's explicit language choice. The
+ *  "botacourse:" prefix predates the site's current name and is kept so
+ *  existing readers' preferences survive; renaming it would reset them. */
+export const LOCALE_PREF_KEY = "botacourse:locale";
 
 /** Persist the user's explicit language choice (read by the first-visit
  * bounce in the [locale] layout; an explicit pick always wins). */
 export function saveLocalePref(locale: Locale): void {
   try {
-    window.localStorage.setItem(PREF_KEY, locale);
+    window.localStorage.setItem(LOCALE_PREF_KEY, locale);
   } catch {
     // Private browsing / storage disabled — fail silently.
   }

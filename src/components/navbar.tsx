@@ -89,7 +89,7 @@ function SiteNavigation({
   alwaysShowLinks?: boolean;
 }) {
   const { t } = useT();
-  let [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <nav className="flex items-center gap-x-6">

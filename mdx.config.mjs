@@ -1,12 +1,13 @@
 /**
  * The MDX pipeline, defined ONCE.
  *
- * Two consumers build a processor from this and they must agree exactly:
+ * Three consumers build a processor from this and they must agree exactly:
  *
  *   next.config.mjs          renders the site
  *   scripts/gen-search-index.ts   builds the search index, and reads back the
  *                            paragraph anchor ids (`p1`, `p2`, …) that
  *                            plugins/rehype-lesson-anchors.mjs assigns
+ *   scripts/print/render.ts  renders the lesson PDFs from the same HTML tree
  *
  * The search index deep-links results to those anchors, so a plugin list that
  * drifted between the two would silently point readers at the wrong paragraph.
@@ -21,9 +22,9 @@
  */
 
 /** remark-smartypants gives typographic quotes/dashes/ellipses; `inverted`
- *  maps `--` -> em dash (Case's typewriter convention). The print pipeline
- *  (scripts/print/render.ts) runs the SAME retext-smartypants engine with the
- *  SAME options, so the site and the exported PDFs render identical marks. */
+ *  maps `--` -> em dash (Case's typewriter convention). The print renderer
+ *  (scripts/print/render.ts) is a third consumer of this list, so the exported
+ *  PDFs carry the same marks as the site by construction. */
 export const remarkPlugins = [
   ["remark-gfm"],
   ["remark-smartypants", { dashes: "inverted", backticks: false }],

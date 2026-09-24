@@ -14,9 +14,9 @@
  * style tweak here is a single edit + regenerate.
  *
  * Reads committed MDX from content/lessons/; writes intermediate HTML to
- * output/print/lessons/ (gitignored) and the committed PDF to
- * public/lessons/<section>/<file>.pdf (same path the lesson page already
- * checks, so no app wiring changes).
+ * output/print/lessons/ and the PDF to public/lessons/<section>/<file>.pdf
+ * (the path the lesson page checks at build time). Both are gitignored: the
+ * Deploy workflow regenerates the PDFs before every build.
  */
 import * as fs from "node:fs";
 import * as path from "node:path";
@@ -29,6 +29,7 @@ import {
   type Lesson,
   type Section,
 } from "../../src/data/curriculum.ts";
+import { DEFAULT_LOCALE } from "../../src/lib/locales.ts";
 import {
   CONTENT_DIR,
   ROOT,
@@ -160,13 +161,13 @@ ${sharedElementsCss()}`;
  *  it can be used standalone (per-lesson PDF) or concatenated into a single
  *  continuously-paginated document (the merged all-lessons.pdf). */
 export function lessonBodyHtml(section: Section, lesson: Lesson): string {
-  let { dir, file } = lessonDiskPath(section.id, lesson.id);
-  let mdxPath = path.join(CONTENT_DIR, dir, `${file}.mdx`);
-  let markdown = fs.readFileSync(mdxPath, "utf8");
-  let withoutFirstHeading = markdown.replace(/^# .+(?:\n+|$)/, "");
-  let { unit, title } = lessonTitleParts(section, lesson);
-  let heading = title ?? numberedLessonTitle(section, lesson);
-  let eyebrow = `${section.label} · ${unit}`;
+  const { dir, file } = lessonDiskPath(section.id, lesson.id);
+  const mdxPath = path.join(CONTENT_DIR, dir, `${file}.mdx`);
+  const markdown = fs.readFileSync(mdxPath, "utf8");
+  const withoutFirstHeading = markdown.replace(/^# .+(?:\n+|$)/, "");
+  const { unit, title } = lessonTitleParts(section, lesson);
+  const heading = title ?? numberedLessonTitle(section, lesson);
+  const eyebrow = `${section.label} · ${unit}`;
   return `<header class="lesson-masthead">
     <div class="eyebrow">${escapeHtml(eyebrow)}</div>
     <h1>${escapeHtml(heading)}</h1>
@@ -178,8 +179,8 @@ ${mdxToHtml(withoutFirstHeading)}
 }
 
 function lessonDocumentHtml(section: Section, lesson: Lesson): string {
-  let { title } = lessonTitleParts(section, lesson);
-  let heading = title ?? numberedLessonTitle(section, lesson);
+  const { title } = lessonTitleParts(section, lesson);
+  const heading = title ?? numberedLessonTitle(section, lesson);
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -194,32 +195,32 @@ ${lessonBodyHtml(section, lesson)}
 }
 
 function main() {
-  let args = process.argv.slice(2);
-  let htmlOnly = args.includes("--html-only");
-  let only = args.filter((a) => !a.startsWith("--")); // optional dir/file filters
+  const args = process.argv.slice(2);
+  const htmlOnly = args.includes("--html-only");
+  const only = args.filter((a) => !a.startsWith("--")); // optional dir/file filters
 
   let count = 0;
-  let skipped: string[] = [];
+  const skipped: string[] = [];
 
-  for (let section of getAllSections()) {
-    for (let lesson of section.lessons) {
-      let { dir, file } = lessonDiskPath(section.id, lesson.id);
-      let key = `${dir}/${file}`;
+  for (const section of getAllSections(DEFAULT_LOCALE)) {
+    for (const lesson of section.lessons) {
+      const { dir, file } = lessonDiskPath(section.id, lesson.id);
+      const key = `${dir}/${file}`;
       if (only.length && !only.includes(key)) continue;
 
-      let mdxPath = path.join(CONTENT_DIR, dir, `${file}.mdx`);
+      const mdxPath = path.join(CONTENT_DIR, dir, `${file}.mdx`);
       if (!fs.existsSync(mdxPath)) {
         skipped.push(key);
         continue;
       }
 
-      let htmlDir = path.join(HTML_DIR, dir);
+      const htmlDir = path.join(HTML_DIR, dir);
       fs.mkdirSync(htmlDir, { recursive: true });
-      let htmlPath = path.join(htmlDir, `${file}.html`);
+      const htmlPath = path.join(htmlDir, `${file}.html`);
       fs.writeFileSync(htmlPath, lessonDocumentHtml(section, lesson));
 
       if (!htmlOnly) {
-        let pdfDir = path.join(PDF_DIR, dir);
+        const pdfDir = path.join(PDF_DIR, dir);
         fs.mkdirSync(pdfDir, { recursive: true });
         buildPdf(htmlPath, path.join(pdfDir, `${file}.pdf`));
       }

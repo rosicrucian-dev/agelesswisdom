@@ -34,10 +34,10 @@ import { dirname, join } from "node:path";
 
 import { getAllSections, type Section } from "../src/data/curriculum.ts";
 import { DEFAULT_LOCALE, LOCALES, type Locale } from "../src/lib/locales.ts";
+import { SITE_URL } from "../src/lib/site.ts";
 
 const outDir = process.argv[2] ?? "out";
 const basePath = process.env.BASE_PATH ?? "";
-const siteUrl = "https://agelesswisdom.school";
 
 /**
  * Sections that have been RENAMED, oldId -> newId.
@@ -56,7 +56,7 @@ const RENAMED_SECTIONS: Record<string, string> = {
 };
 
 function stub(target: string): string {
-  const absolute = `${siteUrl}${target}`;
+  const absolute = `${SITE_URL}${target}`;
   return `<!doctype html>
 <html lang="en">
 <head>

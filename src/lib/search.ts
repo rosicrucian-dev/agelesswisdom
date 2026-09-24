@@ -24,6 +24,7 @@ import {
   type SearchIndex as EngineIndex,
   type SearchResult as EngineResult,
 } from "./search-engine.ts";
+import { BASE_PATH } from "./site.ts";
 
 /** A searchable lesson. */
 export type SearchLesson = {
@@ -87,16 +88,14 @@ export function snippetUrl(
   doc: SearchLesson,
   version?: string,
 ): string {
-  const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
   const query = version ? `?v=${version}` : "";
-  return `${base}/search/${locale}${doc.href}.json${query}`;
+  return `${BASE_PATH}/search/${locale}${doc.href}.json${query}`;
 }
 
 /** URL of a locale's search index. The shared fetch hook is keyed by URL, so
  *  working out the URL is the project's job, not the hook's. */
 export function searchIndexUrl(locale: string): string {
-  const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
-  return `${base}/search-index.${locale}.json`;
+  return `${BASE_PATH}/search-index.${locale}.json`;
 }
 
 export type SearchIndex = EngineIndex<SearchLesson> & {

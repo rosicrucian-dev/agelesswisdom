@@ -1,3 +1,4 @@
+import { SITE_NAME, SITE_URL } from "@/lib/site";
 import { SPLASH_DEVICES, splashMedia, splashPath } from "@/lib/splash";
 import type { Metadata, Viewport } from "next";
 import type React from "react";
@@ -7,8 +8,8 @@ import "./globals.css";
 // src/app/opengraph-image.png and twitter-image.png and resolves them
 // against this. Per-page metadata still supplies each page's title/description.
 export const metadata: Metadata = {
-  metadataBase: new URL("https://agelesswisdom.school"),
-  openGraph: { siteName: "The School of Ageless Wisdom", type: "website" },
+  metadataBase: new URL(SITE_URL),
+  openGraph: { siteName: SITE_NAME, type: "website" },
   // Next 16 emits the modern `mobile-web-app-capable`; add the legacy
   // apple-prefixed name too so pre-16.4 iOS still launches in standalone.
   other: { "apple-mobile-web-app-capable": "yes" },
@@ -44,7 +45,7 @@ export const viewport: Viewport = {
   colorScheme: "light dark",
 };
 
-// Pass-through root layout (same pattern as ../bota-toolbox): the real
+// Pass-through root layout (same pattern as ../botatoolbox): the real
 // document (<html lang>, fonts, body) lives in [locale]/layout.tsx so
 // the lang attribute follows the locale segment. This file must still
 // exist — the root not-found boundary renders into it (not-found.tsx

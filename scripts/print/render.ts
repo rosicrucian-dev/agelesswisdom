@@ -1,35 +1,36 @@
 /**
  * Shared print-rendering core: MDX -> print-ready HTML -> PDF (headless Chrome).
  *
- * Used by both print builders:
- *   - build.ts    — the full book volumes
- *   - lessons.ts  — one typeset PDF per lesson (powers the site's "PDF" button)
+ * Used by every print builder (lessons.ts, bundles.ts, and the local editorial
+ * tools). The Markdown is NOT parsed here: `mdxToHtml` runs the SAME MDX
+ * pipeline as the website (mdx.config.mjs — remark-gfm, smartypants, and the
+ * rest), stops at the HTML tree, and lowers it for paged media with one small
+ * rehype step below. So a construct renders in the PDF exactly as it parses on
+ * the web, and a plugin added to the site is picked up here automatically. An
+ * earlier hand-rolled line parser lived here and had to re-implement every
+ * custom tag; that class of drift is gone.
  *
- * Keeping the Markdown parser, inline formatting, figure/table/symbol handling,
- * font faces, and the Chrome PDF call here means a fix to any of them lands in
- * both artifacts at once.
+ * What stays here: the print-specific lowering (figures, footnotes, symbol
+ * spans, JSX tags to plain elements), the vendored fonts, the shared element
+ * CSS, and the Chrome call.
  */
+import { createProcessor } from "@mdx-js/mdx";
+import type { Element, ElementContent, Root, RootContent } from "hast";
+import { toHtml } from "hast-util-to-html";
 import { execFileSync } from "node:child_process";
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { retext } from "retext";
-import retextSmartypants from "retext-smartypants";
-
-// Smart typography — the SAME engine and options as the web (remark-smartypants
-// in next.config.mjs), so the site and the exported PDFs render identical marks:
-// straight quotes -> curly, `--` -> em dash (`inverted`, Case's typewriter
-// convention), `...` -> ellipsis. processSync keeps it usable in this synchronous
-// line-based renderer. `backticks: false` leaves ``-quote conversion off (we use
-// backticks only for code).
-const smartypantsProcessor = retext().use(retextSmartypants, {
-  quotes: true,
-  ellipses: true,
-  backticks: false,
-  dashes: "inverted",
-});
-function smartTypography(text: string): string {
-  return String(smartypantsProcessor.processSync(text));
-}
+import { VFile } from "vfile";
+import {
+  loadMdxPlugins,
+  rehypePlugins as rehypeSpecs,
+  remarkPlugins as remarkSpecs,
+} from "../../mdx.config.mjs";
+import {
+  TAROT_GRIDS_PER_GROUP,
+  TAROT_GROUPS,
+  tarotGridNumbers,
+} from "../../src/data/tarot-groups.ts";
 
 export const ROOT = path.join(import.meta.dirname, "..", "..");
 export const PUBLIC_DIR = path.join(ROOT, "public");
@@ -49,7 +50,7 @@ export function escapeHtml(value: string): string {
 }
 
 export function roman(value: number): string {
-  let numerals: [number, string][] = [
+  const numerals: [number, string][] = [
     [1000, "M"],
     [900, "CM"],
     [500, "D"],
@@ -65,7 +66,7 @@ export function roman(value: number): string {
     [1, "I"],
   ];
   let out = "";
-  for (let [n, r] of numerals) {
+  for (const [n, r] of numerals) {
     while (value >= n) {
       out += r;
       value -= n;
@@ -74,469 +75,324 @@ export function roman(value: number): string {
   return out;
 }
 
-export function inlineMarkdown(value: string): string {
-  let placeholders: string[] = [];
-  let stash = (html: string) => {
-    placeholders.push(html);
-    return `\u0000${placeholders.length - 1}\u0000`;
-  };
+// ---- MDX -> print HTML ----------------------------------------------------
 
-  value = value.replace(
-    /!\[([^\]]*)\]\(([^)]+)\)/g,
-    (_match, rawAlt: string, rawSrc: string) => {
-      let [alt, dims] = rawAlt.split("|");
-      let dimAttrs = "";
-      if (dims && /^\d+x\d+$/.test(dims)) {
-        let [width, height] = dims.split("x");
-        dimAttrs = ` width="${width}" height="${height}"`;
-      }
-      let src = rawSrc.startsWith("/")
-        ? path.join(PUBLIC_DIR, rawSrc.slice(1))
-        : rawSrc;
-      return stash(
-        `<img class="inline-image" src="${escapeHtml(src)}" alt="${escapeHtml(
-          alt,
-        )}"${dimAttrs}>`,
-      );
-    },
-  );
+/** Astrological / planetary glyphs get a span so the symbol font stack (see
+ *  .symbol in sharedElementsCss) handles their presentation. */
+const SYMBOL = /[♈♉♊♋♌♍♎♏♐♑♒♓☉♀♂♃♄☾☿]/g;
 
-  // Footnote references [^n] -> a superscript marker (no link in print).
-  value = value.replace(/\[\^([^\]]+)\]/g, (_match, n: string) =>
-    stash(`<sup>${escapeHtml(n)}</sup>`),
-  );
+/** hast nodes as they arrive from the MDX pipeline: hast proper, plus the MDX
+ *  JSX/expression/ESM nodes that remark-rehype passes through untouched. */
+type MdxJsxAttribute = {
+  type: "mdxJsxAttribute";
+  name: string;
+  value?: string | { type: string; value: string } | null;
+};
+type MdxNode =
+  | RootContent
+  | {
+      type: "mdxJsxFlowElement" | "mdxJsxTextElement";
+      name: string | null;
+      attributes: MdxJsxAttribute[];
+      children: MdxNode[];
+    }
+  | { type: "mdxFlowExpression" | "mdxTextExpression" | "mdxjsEsm" };
 
-  // Markdown links [text](url) -> just the text; PDFs carry no live links.
-  // Runs after image extraction so image alt/src are already stashed away.
-  value = value.replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1");
-
-  // Inline code -> stashed as finished HTML BEFORE smart typography, so quotes,
-  // dashes and ellipses inside code are never "curled" (the web's mdast pass
-  // skips code nodes; this keeps the print pass in parity) and its content is
-  // not double-escaped.
-  value = value.replace(/`([^`]+)`/g, (_m, code: string) =>
-    stash(`<code>${escapeHtml(code)}</code>`),
-  );
-
-  // Backslash escapes \X (e.g. "19\." in numbered source-fragment lists, or
-  // "\_") -> the literal character, stashed so it survives the smart-typography
-  // and emphasis passes below. Covers all ASCII punctuation.
-  value = value.replace(
-    /\\([\x21-\x2f\x3a-\x40\x5b-\x60\x7b-\x7e])/g,
-    (_match, ch: string) => stash(escapeHtml(ch)),
-  );
-
-  // Smart typography (quotes/dashes/ellipses). Runs on the prose text with code
-  // and other literals already stashed as placeholders (which survive the pass).
-  value = smartTypography(value);
-
-  value = escapeHtml(value);
-  value = value
-    .replace(/&lt;br\s*\/?&gt;/g, "<br>")
-    .replace(/&lt;sup&gt;([\s\S]*?)&lt;\/sup&gt;/g, "<sup>$1</sup>")
-    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
-    .replace(/\*([^*\n]+)\*/g, "<em>$1</em>");
-  value = value.replace(
-    /[♈♉♊♋♌♍♎♏♐♑♒♓☉☾☿♀♂♃♄]/g,
-    (symbol) => `<span class="symbol">${symbol}</span>`,
-  );
-
-  return value.replace(/\u0000(\d+)\u0000/g, (_match, index: string) => {
-    return placeholders[Number(index)] ?? "";
-  });
+function el(
+  tagName: string,
+  properties: Element["properties"],
+  children: ElementContent[] = [],
+): Element {
+  return { type: "element", tagName, properties, children };
 }
 
-export function tableHtml(lines: string[]): string {
-  // GFM column alignment, read from the delimiter row (`| --- | :---: |`).
-  // Without this the row is simply discarded and alignment silently does
-  // nothing in the PDFs while working on the web — the two renderers would
-  // disagree about the same Markdown. Only an EXPLICIT colon sets alignment;
-  // a plain `---` leaves the cell to the stylesheet's default (centred), so
-  // existing tables render exactly as before.
-  let delimiter = lines.find((line) => /^\|\s*:?-+/.test(line));
-  let aligns = (delimiter ?? "")
-    .replace(/^\|/, "")
-    .replace(/\|$/, "")
-    .split("|")
-    .map((cell) => {
-      let c = cell.trim();
-      if (/^:-+:$/.test(c)) return "center";
-      if (/^-+:$/.test(c)) return "right";
-      if (/^:-+$/.test(c)) return "left";
-      return "";
-    });
-
-  let rows = lines
-    .filter((line) => !/^\|\s*:?-+/.test(line))
-    .map((line) =>
-      line
-        .replace(/^\|/, "")
-        .replace(/\|$/, "")
-        .split("|")
-        .map((cell) => cell.trim()),
-    );
-
-  let body = rows
-    .map((cells) => {
-      let cols = cells
-        .map((cell, i) => {
-          let style = aligns[i] ? ` style="text-align:${aligns[i]}"` : "";
-          return `<td${style}>${inlineMarkdown(cell)}</td>`;
-        })
-        .join("");
-      return `<tr>${cols}</tr>`;
-    })
-    .join("\n");
-
-  return `<table>\n<tbody>\n${body}\n</tbody>\n</table>`;
+function text(value: string): ElementContent {
+  return { type: "text", value };
 }
 
-export function imageFigure(line: string): string | null {
-  let match = line.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
-  if (!match) return null;
-  let [alt, dims] = match[1].split("|");
-  let src = match[2].startsWith("/")
-    ? path.join(PUBLIC_DIR, match[2].slice(1))
-    : match[2];
-  let dimAttrs = "";
-  let aspect = "";
+function textOf(node: MdxNode): string {
+  if (node.type === "text") return node.value;
+  return "children" in node ? node.children.map(textOf).join("") : "";
+}
+
+/** Resolve a public asset URL (`/images/…`) to the file Chrome should load. */
+function assetPath(src: string): string {
+  return src.startsWith("/") ? path.join(PUBLIC_DIR, src.slice(1)) : src;
+}
+
+/** `alt` carries "description|WIDTHxHEIGHT" (see mdx-components.tsx). */
+function imageParts(alt: string): {
+  alt: string;
+  width?: number;
+  height?: number;
+} {
+  const [description, dims] = alt.split("|");
   if (dims && /^\d+x\d+$/.test(dims)) {
-    let [width, height] = dims.split("x").map(Number);
-    dimAttrs = ` width="${width}" height="${height}"`;
-    aspect = ` style="--aspect:${width}/${height}"`;
+    const [width, height] = dims.split("x").map(Number);
+    return { alt: description, width, height };
   }
-  let caption =
-    alt && alt !== "Figure"
-      ? `<figcaption>${escapeHtml(alt)}</figcaption>`
-      : "";
-  return `<figure class="figure"${aspect}><img src="${escapeHtml(
-    src,
-  )}" alt="${escapeHtml(alt)}"${dimAttrs}>${caption}</figure>`;
+  return { alt: description ?? "" };
 }
 
-export function tarotGroupsHtml(): string {
-  let groups = [
-    {
-      name: "First Group",
-      offsets: [
-        [-1, 0, 1],
-        [2, 3, 4],
-        [5, 6, 7],
-      ],
-    },
-    {
-      name: "Second Group",
-      offsets: [
-        [1, 0, -1],
-        [4, 3, 2],
-        [7, 6, 5],
-      ],
-    },
-    {
-      name: "Third Group",
-      offsets: [
-        [-1, 2, 5],
-        [0, 3, 6],
-        [1, 4, 7],
-      ],
-    },
-    {
-      name: "Fourth Group",
-      offsets: [
-        [5, 2, -1],
-        [6, 3, 0],
-        [7, 4, 1],
-      ],
-    },
-    {
-      name: "Fifth Group",
-      offsets: [
-        [5, 6, 7],
-        [2, 3, 4],
-        [-1, 0, 1],
-      ],
-    },
-    {
-      name: "Sixth Group",
-      offsets: [
-        [7, 6, 5],
-        [4, 3, 2],
-        [1, 0, -1],
-      ],
-    },
-    {
-      name: "Seventh Group",
-      offsets: [
-        [7, 4, 1],
-        [6, 3, 0],
-        [5, 2, -1],
-      ],
-    },
-    {
-      name: "Eighth Group",
-      offsets: [
-        [1, 4, 7],
-        [0, 3, 6],
-        [-1, 2, 5],
-      ],
-    },
-  ];
-
-  return `<div class="tarot-groups">${groups
-    .map((group) => {
-      let grids = Array.from({ length: 14 }, (_v, i) => {
-        let k = i + 1;
-        let cells = group.offsets
-          .flatMap((row) => row.map((offset) => `<span>${k + offset}</span>`))
-          .join("");
-        return `<div class="tarot-grid">${cells}</div>`;
-      }).join("");
-      return `<section class="tarot-group"><h4>${group.name}</h4>${grids}</section>`;
-    })
-    .join("")}</div>`;
-}
-
-export function mdxToHtml(markdown: string, footnotes?: string[]): string {
-  let lines = markdown.replace(/\r\n/g, "\n").split("\n");
-  let out: string[] = [];
-  let paragraph: string[] = [];
-  // Footnote definitions are collected (shared across recursive calls via the
-  // accumulator) and emitted as one block at the end of the outermost call —
-  // end-of-lesson notes under a rule, matching the website's GFM treatment.
-  // Chrome's print pipeline can't do true bottom-of-page footnotes
-  // (float: footnote is Prince/WeasyPrint-only).
-  let notes = footnotes ?? [];
-
-  let flushParagraph = () => {
-    if (paragraph.length === 0) return;
-    out.push(`<p>${inlineMarkdown(paragraph.join(" "))}</p>`);
-    paragraph = [];
+/** A paragraph that is nothing but one image becomes a figure; the alt text is
+ *  its caption unless it is the generic "Figure". */
+function figureFor(img: Element): Element {
+  const { alt, width, height } = imageParts(String(img.properties.alt ?? ""));
+  const properties: Element["properties"] = {
+    src: assetPath(String(img.properties.src ?? "")),
+    alt,
   };
+  const figureProps: Element["properties"] = { className: ["figure"] };
+  if (width && height) {
+    properties.width = width;
+    properties.height = height;
+    figureProps.style = `--aspect:${width}/${height}`;
+  }
+  const children: ElementContent[] = [el("img", properties)];
+  if (alt && alt !== "Figure") {
+    children.push(el("figcaption", {}, [text(alt)]));
+  }
+  return el("figure", figureProps, children);
+}
 
-  for (let i = 0; i < lines.length; i++) {
-    let line = lines[i];
-    let trimmed = line.trim();
+/** remark-gfm's footnote section (an <ol> of notes with back-references) in
+ *  the print shape: one `.footnote` paragraph per note, its number as a
+ *  superscript, no links — PDFs carry none. */
+function footnotesFor(section: Element): Element {
+  const notes: ElementContent[] = [];
+  const list = section.children.find(
+    (c): c is Element => c.type === "element" && c.tagName === "ol",
+  );
+  for (const li of list?.children ?? []) {
+    if (li.type !== "element" || li.tagName !== "li") continue;
+    const label = String(li.properties.id ?? "").replace(
+      /^user-content-fn-/,
+      "",
+    );
+    // The note's paragraphs, with the "↩" back-reference dropped.
+    const body = li.children.flatMap((c) =>
+      c.type === "element" && c.tagName === "p" ? c.children : [c],
+    );
+    const content = lowerAll(body as MdxNode[], false).filter(
+      (c) =>
+        !(
+          c.type === "element" &&
+          c.tagName === "a" &&
+          "dataFootnoteBackref" in c.properties
+        ),
+    );
+    notes.push(
+      el("p", { className: ["footnote"] }, [
+        el("sup", {}, [text(label)]),
+        text(" "),
+        ...content,
+      ]),
+    );
+  }
+  return el("div", { className: ["footnotes"] }, notes);
+}
 
-    if (trimmed === "") {
-      flushParagraph();
-      continue;
+/** The tarot-group tableaus, derived from the shared offset tables. */
+function tarotGroupsElement(): Element {
+  return el(
+    "div",
+    { className: ["tarot-groups"] },
+    TAROT_GROUPS.map((group) =>
+      el("section", { className: ["tarot-group"] }, [
+        el("h4", {}, [text(group.name)]),
+        ...Array.from({ length: TAROT_GRIDS_PER_GROUP }, (_, i) =>
+          el(
+            "div",
+            { className: ["tarot-grid"] },
+            tarotGridNumbers(group, i + 1).map((n) =>
+              el("span", {}, [text(String(n))]),
+            ),
+          ),
+        ),
+      ]),
+    ),
+  );
+}
+
+/** JSX attributes -> hast properties. JSX names (className, colSpan) ARE the
+ *  hast property names; hast-util-to-html spells them as HTML attributes. */
+function jsxProperties(
+  attributes: ReadonlyArray<{ type: string; name?: string; value?: unknown }>,
+): Element["properties"] {
+  const properties: Element["properties"] = {};
+  for (const attr of attributes) {
+    if (attr.type !== "mdxJsxAttribute" || !attr.name) continue;
+    const raw =
+      attr.value == null
+        ? true
+        : typeof attr.value === "string"
+          ? attr.value
+          : String((attr.value as { value: string }).value); // {2} -> "2"
+    if (attr.name === "className") {
+      properties.className = String(raw).split(/\s+/);
+    } else if (attr.name === "colSpan" || attr.name === "rowSpan") {
+      properties[attr.name] = Number(raw);
+    } else {
+      properties[attr.name] = raw;
     }
+  }
+  return properties;
+}
 
-    if (trimmed === "<TarotGroups />") {
-      flushParagraph();
-      out.push(tarotGroupsHtml());
-      continue;
-    }
+/** Wrap symbol glyphs in `.symbol` spans (not inside code, where text is
+ *  verbatim). */
+function lowerText(value: string, inCode: boolean): ElementContent[] {
+  if (inCode || !SYMBOL.test(value)) return [text(value)];
+  SYMBOL.lastIndex = 0;
+  const out: ElementContent[] = [];
+  let last = 0;
+  for (const match of value.matchAll(SYMBOL)) {
+    if (match.index > last) out.push(text(value.slice(last, match.index)));
+    out.push(el("span", { className: ["symbol"] }, [text(match[0])]));
+    last = match.index + match[0].length;
+  }
+  if (last < value.length) out.push(text(value.slice(last)));
+  return out;
+}
 
-    // <KeepTogether> … </KeepTogether> wraps a labeled unit (a titled list,
-    // a short verse) that must not be split across a page break. Inert on the
-    // web (the component renders its children unchanged); here it becomes a
-    // `.keep-together` box carrying `break-inside: avoid`. The inner block is
-    // recursively converted so its heading/list/paragraphs render normally.
-    if (trimmed === "<KeepTogether>") {
-      flushParagraph();
-      let inner: string[] = [];
-      while (
-        i + 1 < lines.length &&
-        lines[i + 1].trim() !== "</KeepTogether>"
-      ) {
-        inner.push(lines[++i]);
+function lowerAll(nodes: MdxNode[], inCode: boolean): ElementContent[] {
+  return nodes.flatMap((node) => lower(node, inCode));
+}
+
+/**
+ * The print lowering, one node at a time. Returns the replacement(s): a node
+ * may become several (a link unwraps to its children) or none (ESM, expressions,
+ * footnote back-references).
+ */
+function lower(node: MdxNode, inCode: boolean): ElementContent[] {
+  switch (node.type) {
+    case "text":
+      return lowerText(node.value, inCode);
+
+    case "element": {
+      const { tagName, properties } = node;
+      // PDFs carry no live links: a link is just its text.
+      if (tagName === "a") {
+        if ("dataFootnoteBackref" in properties) return [];
+        return lowerAll(node.children as MdxNode[], inCode);
       }
-      i++; // consume the closing </KeepTogether>
-      out.push(
-        `<div class="keep-together">\n${mdxToHtml(inner.join("\n"), notes)}\n</div>`,
-      );
-      continue;
-    }
-
-    // <EditorNote>…</EditorNote> — a one-line editorial aside (the editors'
-    // voice, not Case's text: a missing figure, a gloss). Web counterpart is
-    // the EditorNote component in mdx-components.tsx; both render `.editor-note`.
-    let editorNote = trimmed.match(/^<EditorNote>([\s\S]*)<\/EditorNote>$/);
-    if (editorNote) {
-      flushParagraph();
-      out.push(`<p class="editor-note">${inlineMarkdown(editorNote[1])}</p>`);
-      continue;
-    }
-
-    // <Cite>…</Cite> — a quotation's source attribution. A muted, right-aligned
-    // em-dash line kept with the quote it follows (break-before: avoid, so it
-    // can never orphan onto the next page). Web counterpart: the Cite component.
-    let cite = trimmed.match(/^<Cite>([\s\S]*)<\/Cite>$/);
-    if (cite) {
-      flushParagraph();
-      out.push(`<p class="quote-cite">— ${inlineMarkdown(cite[1])}</p>`);
-      continue;
-    }
-
-    let figure = imageFigure(trimmed);
-    if (figure) {
-      flushParagraph();
-      out.push(figure);
-      continue;
-    }
-
-    // A literal HTML block written as JSX in the MDX. Two shapes occur:
-    //
-    //   <table> … </table>   a table Markdown can't express — a two-tier header
-    //                        whose top row spans columns (colSpan). Passed
-    //                        through verbatim; the print stylesheet's table
-    //                        rules style it like any converted pipe table.
-    //   <div class=…> … </div>  a styling wrapper around ordinary Markdown
-    //                        (e.g. `even-columns` for the dignity tables). The
-    //                        wrapper is kept and its contents converted
-    //                        recursively, so the pipe table inside still
-    //                        becomes a real table here.
-    //
-    // JSX attribute spellings are normalized to HTML on the way out.
-    if (trimmed.startsWith("<div") || trimmed.startsWith("<table")) {
-      let tag = trimmed.startsWith("<div") ? "div" : "table";
-      flushParagraph();
-      let block = [trimmed];
-      let depth = 0;
-      let count = (text: string) => {
-        depth += (text.match(new RegExp(`<${tag}[\\s>]`, "g")) ?? []).length;
-        depth -= (text.match(new RegExp(`</${tag}>`, "g")) ?? []).length;
-      };
-      count(trimmed);
-      while (depth > 0 && i + 1 < lines.length) {
-        let next = lines[++i].trim();
-        block.push(next);
-        count(next);
+      if (tagName === "section" && "dataFootnotes" in properties) {
+        return [footnotesFor(node)];
       }
-      let html =
-        tag === "table"
-          ? block.join("\n")
-          : `${block[0]}\n${mdxToHtml(block.slice(1, -1).join("\n"), notes)}\n${block[block.length - 1]}`;
-      out.push(
-        html
-          .replace(/\bclassName=/g, "class=")
-          .replace(/\bcolSpan=\{(\d+)\}/g, 'colspan="$1"')
-          .replace(/\browSpan=\{(\d+)\}/g, 'rowspan="$1"'),
-      );
-      continue;
-    }
-
-    if (trimmed.startsWith("|")) {
-      flushParagraph();
-      let tableLines = [trimmed];
-      while (lines[i + 1]?.trim().startsWith("|")) {
-        tableLines.push(lines[++i].trim());
-      }
-      out.push(tableHtml(tableLines));
-      continue;
-    }
-
-    // Fenced code block (```lang … ```): verbatim, whitespace-preserved
-    // monospace — the Oracle-of-Tarot attribution lists, card spreads, dot
-    // figures. Content is taken raw (no inline markdown) and HTML-escaped.
-    if (trimmed.startsWith("```")) {
-      flushParagraph();
-      let content: string[] = [];
-      while (i + 1 < lines.length && !lines[i + 1].trim().startsWith("```")) {
-        content.push(lines[++i]);
-      }
-      if (i + 1 < lines.length) i++; // consume the closing fence
-      out.push(`<pre><code>${escapeHtml(content.join("\n"))}</code></pre>`);
-      continue;
-    }
-
-    let footnoteDef = trimmed.match(/^\[\^([^\]]+)\]:\s*(.+)$/);
-    if (footnoteDef) {
-      flushParagraph();
-      notes.push(
-        `<p class="footnote"><sup>${escapeHtml(footnoteDef[1])}</sup> ${inlineMarkdown(footnoteDef[2])}</p>`,
-      );
-      continue;
-    }
-
-    let heading = trimmed.match(/^(#{1,4})\s+(.+)$/);
-    if (heading) {
-      flushParagraph();
-      let level = Math.min(heading[1].length + 1, 5);
-      out.push(`<h${level}>${inlineMarkdown(heading[2])}</h${level}>`);
-      continue;
-    }
-
-    if (/^>\s?/.test(trimmed)) {
-      flushParagraph();
-      let quoteLines = [trimmed.replace(/^>\s?/, "")];
-      while (lines[i + 1]?.trim().startsWith(">")) {
-        quoteLines.push(lines[++i].trim().replace(/^>\s?/, ""));
-      }
-      // Nested quote (`> > …`): after stripping one level the content still
-      // has blockquote lines. Recurse so the inner quote becomes a nested
-      // <blockquote> instead of leaking its `>` as literal text.
-      if (quoteLines.some((ql) => /^>\s?/.test(ql.trim()))) {
-        out.push(
-          `<blockquote>${mdxToHtml(quoteLines.join("\n"), notes)}</blockquote>`,
+      // A paragraph holding only an image is a figure.
+      if (tagName === "p") {
+        const meaningful = node.children.filter(
+          (c) => !(c.type === "text" && c.value.trim() === ""),
         );
-        continue;
+        const only = meaningful[0];
+        if (
+          meaningful.length === 1 &&
+          only.type === "element" &&
+          only.tagName === "img"
+        ) {
+          return [figureFor(only)];
+        }
       }
-      // One <p> per quotation paragraph (split on blank quote lines) so a long
-      // quote can break across pages BETWEEN paragraphs; each paragraph is kept
-      // whole by the `.blockquote p` break rule. The old single-<p> form let the
-      // shared `blockquote { break-inside: avoid }` strand a whole long quote on
-      // the next page, leaving large voids.
-      let quoteParas = [];
-      let curPara = [];
-      for (let ql of quoteLines) {
-        if (ql.trim() === "") {
-          if (curPara.length) quoteParas.push(curPara);
-          curPara = [];
-        } else curPara.push(ql);
+      if (tagName === "img") {
+        const { alt, width, height } = imageParts(String(properties.alt ?? ""));
+        const props: Element["properties"] = {
+          className: ["inline-image"],
+          src: assetPath(String(properties.src ?? "")),
+          alt,
+        };
+        if (width && height) Object.assign(props, { width, height });
+        return [el("img", props)];
       }
-      if (curPara.length) quoteParas.push(curPara);
-      // Join with a space (like the body-paragraph path), NOT "<br>": verse
-      // carries its own explicit `<br />` per line, so a joiner break would
-      // double every line; prose quote paragraphs are a single source line and
-      // are unaffected. This keeps quoted verse single-spaced and matches web.
-      out.push(
-        `<blockquote>${quoteParas
-          .map((pl) => `<p>${inlineMarkdown(pl.join(" "))}</p>`)
-          .join("")}</blockquote>`,
-      );
-      continue;
+      // The lesson title is the masthead's <h1> (see lessons.ts), so body
+      // headings sit one level down: `##` in the source is an <h3> here.
+      const heading = /^h([1-5])$/.exec(tagName);
+      if (heading) {
+        const level = Math.min(Number(heading[1]) + 1, 5);
+        return [
+          el("h" + level, {}, lowerAll(node.children as MdxNode[], inCode)),
+        ];
+      }
+      // GFM column alignment as an inline style (the `align` attribute is
+      // obsolete HTML).
+      const props: Element["properties"] = { ...properties };
+      if ((tagName === "td" || tagName === "th") && props.align) {
+        props.style = `text-align:${props.align}`;
+        delete props.align;
+      }
+      const code = inCode || tagName === "code" || tagName === "pre";
+      return [el(tagName, props, lowerAll(node.children as MdxNode[], code))];
     }
 
-    if (/^[-*]\s+/.test(trimmed)) {
-      flushParagraph();
-      let items = [trimmed.replace(/^[-*]\s+/, "")];
-      while (/^[-*]\s+/.test(lines[i + 1]?.trim() ?? "")) {
-        items.push(lines[++i].trim().replace(/^[-*]\s+/, ""));
+    case "mdxJsxFlowElement":
+    case "mdxJsxTextElement": {
+      const children = () => lowerAll(node.children, inCode);
+      switch (node.name) {
+        // The custom tags, each mirroring its web component in
+        // mdx-components.tsx (same class names; the print CSS styles them).
+        case "KeepTogether":
+          return [el("div", { className: ["keep-together"] }, children())];
+        case "EditorNote":
+          return [el("p", { className: ["editor-note"] }, children())];
+        case "Cite":
+          return [
+            el("p", { className: ["quote-cite"] }, [text("— "), ...children()]),
+          ];
+        case "TarotGroups":
+          return [tarotGroupsElement()];
       }
-      out.push(
-        `<ul>${items.map((item) => `<li>${inlineMarkdown(item)}</li>`).join("")}</ul>`,
+      // Hand-written HTML in the MDX (<div className=…>, <table>, <br />,
+      // <sup>): the same element, attributes normalized.
+      if (node.name && /^[a-z]/.test(node.name)) {
+        return [el(node.name, jsxProperties(node.attributes), children())];
+      }
+      throw new Error(
+        `print: no rendering for <${node.name ?? "fragment"}> — add it to ` +
+          `lower() in scripts/print/render.ts (and to mdx-components.tsx).`,
       );
-      continue;
     }
 
-    if (/^\d+\.\s+/.test(trimmed)) {
-      flushParagraph();
-      let first = trimmed.match(/^(\d+)\.\s+(.+)$/);
-      let items = first ? [{ n: first[1], text: first[2] }] : [];
-      while (/^\d+\.\s+/.test(lines[i + 1]?.trim() ?? "")) {
-        let next = lines[++i].trim().match(/^(\d+)\.\s+(.+)$/);
-        if (next) items.push({ n: next[1], text: next[2] });
-      }
-      out.push(
-        `<ol>${items
-          .map(
-            (item) => `<li value="${item.n}">${inlineMarkdown(item.text)}</li>`,
-          )
-          .join("")}</ol>`,
-      );
-      continue;
-    }
+    // import/export lines and {expressions}: nothing to print.
+    case "mdxFlowExpression":
+    case "mdxTextExpression":
+    case "mdxjsEsm":
+      return [];
 
-    paragraph.push(trimmed);
+    default:
+      return [node as ElementContent];
   }
+}
 
-  flushParagraph();
-  if (!footnotes && notes.length > 0) {
-    out.push(`<div class="footnotes">\n${notes.join("\n")}\n</div>`);
-  }
-  return out.join("\n");
+/** Captured by the plugin below on each run; `mdxToHtml` reads it back. A
+ *  module-level slot is the plain way for a unified plugin to return a value. */
+let printed = "";
+
+/** The last rehype step: lower the site's HTML tree for print and serialize
+ *  it. Everything after this stage in the MDX processor (JSX compilation)
+ *  still runs and is ignored. */
+function rehypePrint() {
+  return (tree: Root) => {
+    const children = lowerAll(tree.children as MdxNode[], false);
+    printed = toHtml({ type: "root", children } as Root);
+  };
+}
+
+const processor = createProcessor({
+  remarkPlugins: await loadMdxPlugins(remarkSpecs),
+  rehypePlugins: [...(await loadMdxPlugins(rehypeSpecs)), rehypePrint],
+});
+
+/**
+ * Lesson MDX -> print HTML fragment, through the website's own pipeline.
+ *
+ * The file is given NO path on purpose: the paragraph-anchor plugin keys on
+ * `content/lessons/` in the path and would otherwise add its ¶ markers, which
+ * are a web affordance. Synchronous, so the print builders and the editorial
+ * tools can stay simple loops.
+ */
+export function mdxToHtml(markdown: string): string {
+  const file = new VFile({ value: markdown });
+  processor.runSync(processor.parse(file) as never, file);
+  return printed;
 }
 
 /** @font-face blocks for every script the lessons use. The governing rule:
@@ -560,7 +416,7 @@ export function mdxToHtml(markdown: string, footnotes?: string[]): string {
  *  Verified after each render with `pdffonts` (expect zero Type 3, zero system
  *  fonts) and `pdfminer` (no glyph drawn from an un-vendored font). */
 export function fontFaceCss(): string {
-  let f = (name: string) => path.join(FONTS_DIR, name);
+  const f = (name: string) => path.join(FONTS_DIR, name);
   return `
 @font-face {
   font-family: "Print Symbols";
@@ -759,6 +615,13 @@ th {
   text-align: center;
   vertical-align: middle;
 }
+/* Markdown renders a table's first row as <th>, which browsers bold by
+   default; most lesson tables are data grids with no real header. Same rule
+   as the web (typography.css): a header is bold only when its cells are
+   bolded explicitly (**Header**). */
+th {
+  font-weight: inherit;
+}
 figure {
   break-inside: avoid;
   margin: 0.2in auto;
@@ -871,7 +734,7 @@ figcaption {
 function chromePath(): string {
   // CHROME_BIN escape hatch for CI / non-standard installs.
   if (process.env.CHROME_BIN) return process.env.CHROME_BIN;
-  let macChrome =
+  const macChrome =
     "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
   if (fs.existsSync(macChrome)) return macChrome;
   // On the GitHub ubuntu runner (and most Linux setups) this is on PATH;

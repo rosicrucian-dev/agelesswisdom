@@ -35,14 +35,16 @@ import {
   type Lesson,
   type Section,
 } from "../../src/data/curriculum.ts";
-import { PUBLIC_DIR, buildPdf, escapeHtml, fontFaceCss } from "./render.ts";
+import { DEFAULT_LOCALE } from "../../src/lib/locales.ts";
+import { SITE_NAME } from "../../src/lib/site.ts";
 import { lessonBodyHtml, lessonCss } from "./lessons.ts";
+import { PUBLIC_DIR, buildPdf, escapeHtml, fontFaceCss } from "./render.ts";
 
 const PDF_DIR = path.join(PUBLIC_DIR, "lessons");
 const OUT_DIR = path.join(PUBLIC_DIR, "downloads");
 const ZIP = path.join(OUT_DIR, "all-lessons.zip");
 const MERGED = path.join(OUT_DIR, "all-lessons.pdf");
-const SITE_TITLE = "The School of Ageless Wisdom";
+const SITE_TITLE = SITE_NAME;
 
 type Grouped = { section: Section; lessons: { lesson: Lesson; pdf: string }[] };
 
@@ -50,12 +52,12 @@ type Grouped = { section: Section; lessons: { lesson: Lesson; pdf: string }[] };
  *  section. A lesson without a PDF — e.g. the donor-excluded MAGIC.06, which
  *  has no MDX — is simply skipped, so it never enters either bundle. */
 function collectSections(): Grouped[] {
-  let groups: Grouped[] = [];
-  for (let section of getAllSections()) {
-    let lessons: { lesson: Lesson; pdf: string }[] = [];
-    for (let lesson of section.lessons) {
-      let { dir, file } = lessonDiskPath(section.id, lesson.id);
-      let pdf = path.join(PDF_DIR, dir, `${file}.pdf`);
+  const groups: Grouped[] = [];
+  for (const section of getAllSections(DEFAULT_LOCALE)) {
+    const lessons: { lesson: Lesson; pdf: string }[] = [];
+    for (const lesson of section.lessons) {
+      const { dir, file } = lessonDiskPath(section.id, lesson.id);
+      const pdf = path.join(PDF_DIR, dir, `${file}.pdf`);
       if (fs.existsSync(pdf)) lessons.push({ lesson, pdf });
     }
     if (lessons.length) groups.push({ section, lessons });
@@ -64,8 +66,8 @@ function collectSections(): Grouped[] {
 }
 
 function pageCount(pdf: string): number {
-  let out = execFileSync("pdfinfo", [pdf], { encoding: "utf8" });
-  let m = out.match(/^Pages:\s+(\d+)/m);
+  const out = execFileSync("pdfinfo", [pdf], { encoding: "utf8" });
+  const m = out.match(/^Pages:\s+(\d+)/m);
   if (!m) throw new Error(`could not read page count from ${pdf}`);
   return Number(m[1]);
 }
@@ -85,7 +87,7 @@ function pdfMarkText(value: string): string {
  *  lessons exactly. The curriculum volume covers with the site name; a
  *  single-work bundle covers with that work's own title. */
 function renderTitlePage(dest: string, title: string) {
-  let html = `<!doctype html>
+  const html = `<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -106,7 +108,7 @@ h1 { font-size: 30pt; font-weight: 700; line-height: 1.2; margin: 0; padding: 0 
 </head>
 <body><h1>${escapeHtml(title)}</h1></body>
 </html>`;
-  let tmpHtml = dest.replace(/\.pdf$/, ".html");
+  const tmpHtml = dest.replace(/\.pdf$/, ".html");
   fs.writeFileSync(tmpHtml, html);
   buildPdf(tmpHtml, dest);
   fs.rmSync(tmpHtml, { force: true });
@@ -120,10 +122,10 @@ h1 { font-size: 30pt; font-weight: 700; line-height: 1.2; margin: 0; padding: 0 
 function buildZip(core: Grouped[], additional: Grouped[]) {
   fs.mkdirSync(OUT_DIR, { recursive: true });
   fs.rmSync(ZIP, { force: true }); // zip appends to an existing archive otherwise
-  let stage = fs.mkdtempSync(path.join(os.tmpdir(), "zip-"));
+  const stage = fs.mkdtempSync(path.join(os.tmpdir(), "zip-"));
   try {
-    let topDirs: string[] = [];
-    for (let g of core) {
+    const topDirs: string[] = [];
+    for (const g of core) {
       fs.cpSync(
         path.join(PDF_DIR, g.section.id),
         path.join(stage, "school-of-ageless-wisdom", "sections", g.section.id),
@@ -131,7 +133,7 @@ function buildZip(core: Grouped[], additional: Grouped[]) {
       );
     }
     if (core.length) topDirs.push("school-of-ageless-wisdom");
-    for (let g of additional) {
+    for (const g of additional) {
       fs.cpSync(
         path.join(PDF_DIR, g.section.id),
         path.join(stage, "additional-material", g.section.id),
@@ -149,7 +151,7 @@ function buildZip(core: Grouped[], additional: Grouped[]) {
  *  + body separated by a page break, so the footer counter(page) runs 1..N
  *  across the whole file rather than restarting per lesson. */
 function mergedLessonsHtml(groups: Grouped[]): string {
-  let blocks = groups
+  const blocks = groups
     .flatMap((g) =>
       g.lessons.map(
         ({ lesson }) =>
@@ -178,42 +180,42 @@ ${blocks}
  *  positions come from the per-lesson PDFs' page counts, which match the
  *  continuous render (identical CSS, one break per lesson). */
 function buildMerged(groups: Grouped[], dest: string, coverTitle: string) {
-  let tmp = fs.mkdtempSync(path.join(os.tmpdir(), "bundles-"));
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "bundles-"));
   try {
-    let title = path.join(tmp, "_title.pdf");
+    const title = path.join(tmp, "_title.pdf");
     renderTitlePage(title, coverTitle);
 
-    let lessonsHtml = path.join(tmp, "_lessons.html");
+    const lessonsHtml = path.join(tmp, "_lessons.html");
     fs.writeFileSync(lessonsHtml, mergedLessonsHtml(groups));
-    let lessonsPdf = path.join(tmp, "_lessons.pdf");
+    const lessonsPdf = path.join(tmp, "_lessons.pdf");
     buildPdf(lessonsHtml, lessonsPdf);
 
     // Document title, so a viewer's tab/title bar names the work rather than
     // the throwaway "_lessons.html" of the intermediate render.
-    let marks: string[] = [
+    const marks: string[] = [
       `[ /Title ${pdfMarkText(coverTitle)} /DOCINFO pdfmark`,
     ];
     let page = pageCount(title) + 1; // first lesson starts after the title page
     let lessonPages = 0;
 
-    for (let { section, lessons } of groups) {
-      let secTitle = section.label;
+    for (const { section, lessons } of groups) {
+      const secTitle = section.label;
       // Parent entry, collapsed, anchored to its first lesson's first page;
       // /Count -N makes the next N entries its children.
       marks.push(
         `[/Count -${lessons.length} /Page ${page} /Title ${pdfMarkText(secTitle)} /OUT pdfmark`,
       );
-      for (let { lesson, pdf } of lessons) {
+      for (const { lesson, pdf } of lessons) {
         marks.push(
           `[/Page ${page} /Title ${pdfMarkText(numberedLessonTitle(section, lesson))} /OUT pdfmark`,
         );
-        let n = pageCount(pdf);
+        const n = pageCount(pdf);
         page += n;
         lessonPages += n;
       }
     }
 
-    let rendered = pageCount(lessonsPdf);
+    const rendered = pageCount(lessonsPdf);
     if (rendered !== lessonPages) {
       console.warn(
         `[bundles] continuous render is ${rendered} pages but per-lesson ` +
@@ -221,7 +223,7 @@ function buildMerged(groups: Grouped[], dest: string, coverTitle: string) {
       );
     }
 
-    let marksFile = path.join(tmp, "marks.ps");
+    const marksFile = path.join(tmp, "marks.ps");
     fs.writeFileSync(marksFile, marks.join("\n") + "\n");
 
     fs.mkdirSync(OUT_DIR, { recursive: true });
@@ -258,10 +260,10 @@ function buildMerged(groups: Grouped[], dest: string, coverTitle: string) {
 }
 
 function main() {
-  let groups = collectSections();
-  let core = groups.filter((g) => !g.section.additional);
-  let additional = groups.filter((g) => g.section.additional);
-  let lessonTotal = groups.reduce((n, g) => n + g.lessons.length, 0);
+  const groups = collectSections();
+  const core = groups.filter((g) => !g.section.additional);
+  const additional = groups.filter((g) => g.section.additional);
+  const lessonTotal = groups.reduce((n, g) => n + g.lessons.length, 0);
   if (!lessonTotal) {
     throw new Error(
       "no lesson PDFs found in public/lessons — run `npm run pdf:lessons` first",
@@ -272,14 +274,14 @@ function main() {
   // work gets a merged PDF of its own.
   buildZip(core, additional);
   buildMerged(core, MERGED, SITE_TITLE);
-  let coreTotal = core.reduce((n, g) => n + g.lessons.length, 0);
+  const coreTotal = core.reduce((n, g) => n + g.lessons.length, 0);
   console.log(
     `bundled ${lessonTotal} lessons (${coreTotal} core + ${lessonTotal - coreTotal} additional):`,
   );
   console.log(`  ${path.relative(process.cwd(), ZIP)}  (all)`);
   console.log(`  ${path.relative(process.cwd(), MERGED)}  (core only)`);
-  for (let group of additional) {
-    let dest = path.join(OUT_DIR, `${group.section.id}.pdf`);
+  for (const group of additional) {
+    const dest = path.join(OUT_DIR, `${group.section.id}.pdf`);
     buildMerged([group], dest, group.section.label);
     console.log(
       `  ${path.relative(process.cwd(), dest)}  (${group.lessons.length} lessons)`,

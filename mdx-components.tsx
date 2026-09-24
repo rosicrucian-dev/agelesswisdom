@@ -1,7 +1,7 @@
 import type { MDXComponents } from "mdx/types";
 import Image from "next/image";
-import Link from "next/link";
 import { ReactNode } from "react";
+import { Link } from "./src/components/locale-link";
 import { TarotGroups } from "./src/components/tarot-groups";
 
 function getTextContent(node: ReactNode): string {
@@ -30,7 +30,7 @@ function generateId(text: string) {
 }
 
 // Image dimensions ride along in the alt text as "description|WIDTHxHEIGHT"
-// (emitted by scripts/extract.ts) so next/image can size them statically.
+// so next/image can size them statically (see content/lessons in the README).
 const IMAGE_DIMENSION_REGEX = /^[^|]*\|\d+x\d+$/;
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
@@ -38,7 +38,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     // Preserve any id the markdown pipeline already set (e.g. remark-gfm's
     // "footnote-label"); otherwise derive one from the heading text.
     h1: ({ children, id, ...props }) => {
-      let resolvedId = id ?? generateId(getTextContent(children));
+      const resolvedId = id ?? generateId(getTextContent(children));
       return (
         <h1 id={resolvedId} {...props}>
           {children}
@@ -46,7 +46,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
       );
     },
     h2: ({ children, id, ...props }) => {
-      let resolvedId = id ?? generateId(getTextContent(children));
+      const resolvedId = id ?? generateId(getTextContent(children));
       return (
         <h2 id={resolvedId} {...props}>
           {children}
@@ -54,7 +54,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
       );
     },
     h3: ({ children, id, ...props }) => {
-      let resolvedId = id ?? generateId(getTextContent(children));
+      const resolvedId = id ?? generateId(getTextContent(children));
       return (
         <h3 id={resolvedId} {...props}>
           {children}
@@ -62,7 +62,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
       );
     },
     h4: ({ children, id, ...props }) => {
-      let resolvedId = id ?? generateId(getTextContent(children));
+      const resolvedId = id ?? generateId(getTextContent(children));
       return (
         <h4 id={resolvedId} {...props}>
           {children}
@@ -71,7 +71,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     },
     img: ({ alt = "", ...props }) => {
       if (IMAGE_DIMENSION_REGEX.test(alt)) {
-        let [width, height] = alt.split("|")[1].split("x").map(Number);
+        const [width, height] = alt.split("|")[1].split("x").map(Number);
         return (
           <Image
             {...props}
@@ -86,8 +86,9 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
       // dimensions.
       return <img alt={alt} {...props} />;
     },
-    // Internal cross-references (lesson-to-lesson links) go through
-    // next/link so the basePath is prefixed and navigation stays client-side.
+    // Internal cross-references (lesson-to-lesson links) go through the
+    // locale-aware Link so a German lesson links within /de/, the basePath is
+    // prefixed, and navigation stays client-side.
     a: ({ href = "", children, ...props }) =>
       href.startsWith("/") ? (
         <Link href={href} {...props}>

@@ -2,12 +2,11 @@ import { type MetadataRoute } from "next";
 
 import { getSections, lessonUrl } from "@/data/curriculum";
 import { DEFAULT_LOCALE, RELEASED_LOCALES, type Locale } from "@/lib/locales";
+import { SITE_URL } from "@/lib/site";
 
 // Required by `output: 'export'` for metadata routes — emits a static
 // /sitemap.xml file at build time instead of treating it as dynamic.
 export const dynamic = "force-static";
-
-const SITE = "https://agelesswisdom.school";
 
 // Trailing slashes match the site's canonical URLs (next.config sets
 // `trailingSlash: true`, so `/about` redirects to `/about/`).
@@ -20,10 +19,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
   // unprefixed (the build's /en/ tree is hoisted to the root by
   // scripts/hoist-en.ts), translated locales under /<locale>/. All rows
   // carry the same hreflang alternates; x-default points at English.
-  // Same convention as ../bota-toolbox.
+  // Same convention as ../botatoolbox.
   function url(locale: Locale, path: string): string {
-    if (locale === DEFAULT_LOCALE) return `${SITE}${path}`;
-    return `${SITE}/${locale}${path === "/" ? "/" : path}`;
+    if (locale === DEFAULT_LOCALE) return `${SITE_URL}${path}`;
+    return `${SITE_URL}/${locale}${path === "/" ? "/" : path}`;
   }
   function entries(path: string): MetadataRoute.Sitemap {
     const alternates = {

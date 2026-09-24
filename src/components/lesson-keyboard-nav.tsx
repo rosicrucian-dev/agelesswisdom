@@ -15,7 +15,7 @@ export function LessonKeyboardNav({
   prevHref?: string;
   nextHref?: string;
 }) {
-  let router = useLocaleRouter();
+  const router = useLocaleRouter();
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -24,7 +24,7 @@ export function LessonKeyboardNav({
         return;
       if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
 
-      let target = event.target;
+      const target = event.target;
       if (
         target instanceof HTMLElement &&
         (target.isContentEditable ||
@@ -34,7 +34,7 @@ export function LessonKeyboardNav({
       // Any open HeadlessUI dialog (search, mobile nav/sidebar) owns the keys.
       if (document.querySelector("[role='dialog']")) return;
 
-      let href = event.key === "ArrowLeft" ? prevHref : nextHref;
+      const href = event.key === "ArrowLeft" ? prevHref : nextHref;
       if (href) {
         event.preventDefault();
         router.push(href);

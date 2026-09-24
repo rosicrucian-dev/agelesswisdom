@@ -4,7 +4,7 @@
 // Browser-tab favicons float on the toolbar, so the bare glyph is right
 // here — unlike the home-screen tile (gen-appicon.ts), which is full-bleed
 // opaque. favicon.ico is written as PNG-in-ICO (32px + 16px), which every
-// modern browser reads. Mirrors ../bota-toolbox/scripts/gen-favicon.ts.
+// modern browser reads. Mirrors ../botatoolbox/scripts/gen-favicon.ts.
 //
 // Run with: npm run gen:favicon  (then commit the two files)
 

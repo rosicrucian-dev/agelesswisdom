@@ -54,6 +54,24 @@ export type Section = {
   lessons: Lesson[];
 };
 
+/**
+ * The fields a translation may override, per level. Everything else is
+ * structure and is read from English only. Shared by the loader
+ * (src/data/curriculum.ts) and the gardener (scripts/gen-translations.ts) so
+ * the two can never disagree about what counts as translatable.
+ */
+export const SECTION_DISPLAY_FIELDS = [
+  "label",
+  "shortLabel",
+  "description",
+  "unitLabel",
+] as const;
+export const LESSON_DISPLAY_FIELDS = [
+  "title",
+  "description",
+  "unitLabel",
+] as const;
+
 /** The effective unit noun for a lesson: its own override, else the section's,
  *  else "Lesson" (defensive only — en.json sets unitLabel explicitly). */
 export function unitLabelOf(section: Section, lesson: Lesson): string {
@@ -66,8 +84,8 @@ export function lessonUnitPosition(
   section: Section,
   lesson: Lesson,
 ): { unit: string; number: number; total: number } {
-  let unit = unitLabelOf(section, lesson);
-  let group = section.lessons.filter(
+  const unit = unitLabelOf(section, lesson);
+  const group = section.lessons.filter(
     (l) => !l.unnumbered && unitLabelOf(section, l) === unit,
   );
   return {
@@ -81,7 +99,7 @@ export function lessonUnitPosition(
  *  or just "Lesson 1" when the lesson has no distinct title. Unnumbered items
  *  (standalone works) render as their bare title. */
 export function numberedLessonTitle(section: Section, lesson: Lesson): string {
-  let { unit, title } = lessonTitleParts(section, lesson);
+  const { unit, title } = lessonTitleParts(section, lesson);
   if (!unit) return title ?? unitLabelOf(section, lesson);
   return title ? `${unit} - ${title}` : unit;
 }
@@ -94,7 +112,7 @@ export function lessonTitleParts(
   lesson: Lesson,
 ): { unit?: string; title?: string } {
   if (lesson.unnumbered) return { title: lesson.title };
-  let { unit, number } = lessonUnitPosition(section, lesson);
+  const { unit, number } = lessonUnitPosition(section, lesson);
   return { unit: `${unit} ${number}`, title: lesson.title };
 }
 
@@ -125,6 +143,6 @@ export function sectionDirName(section: Section): string {
 }
 
 export function lessonFileName(section: Section, lesson: Lesson): string {
-  let n = section.lessons.findIndex((l) => l.id === lesson.id) + 1;
+  const n = section.lessons.findIndex((l) => l.id === lesson.id) + 1;
   return `${String(n).padStart(2, "0")}-${lesson.id}`;
 }

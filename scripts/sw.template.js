@@ -32,6 +32,9 @@ const PRECACHE_MANIFEST = __PRECACHE_MANIFEST__;
 // different stamp is last deploy's text and is dropped on activate.
 const SEARCH_VERSION = __SEARCH_VERSION__;
 
+// "saw" = School of Ageless Wisdom. The prefix is part of installed readers'
+// cache names, and the activate step deletes every "saw-" cache not listed
+// here — so keep the prefix; bump the RUNTIME suffix to retire a scheme.
 const PRECACHE = "saw-precache";
 const RUNTIME = "saw-runtime-v1";
 // Sentinel cache entry storing { url: rev } from the previous install, so

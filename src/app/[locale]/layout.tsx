@@ -2,11 +2,13 @@ import { LocaleProvider } from "@/components/locale-provider";
 import { ServiceWorkerRegistration } from "@/components/service-worker-registration";
 import {
   DEFAULT_LOCALE,
+  LOCALE_PREF_KEY,
   LOCALES,
   RELEASED_LOCALES,
-  TRANSLATION_LOCALES,
   toLocale,
+  TRANSLATION_LOCALES,
 } from "@/lib/locales";
+import { BASE_PATH } from "@/lib/site";
 import { clsx } from "clsx";
 import localFont from "next/font/local";
 import type React from "react";
@@ -39,22 +41,22 @@ const Literata = localFont({
   ],
 });
 
-// Pre-hydration language bounce (ported from ../bota-toolbox), emitted
+// Pre-hydration language bounce (ported from ../botatoolbox), emitted
 // only into English pages and only acting on the home page: an
 // installed home-screen app relaunches at start_url, and a brand-new
 // visitor with a translated-locale browser lands there too — both get
 // sent to their locale's home before first paint. Deep links never
-// bounce; an explicit switcher pick writes "botacourse:locale", which
-// this reads first. Only RELEASED locales participate, so nothing is
+// bounce; an explicit switcher pick writes LOCALE_PREF_KEY, which this
+// reads first. Only RELEASED locales participate, so nothing is
 // emitted while translations are dark-launched.
 const BOUNCE_LOCALES = TRANSLATION_LOCALES.filter((l) =>
   RELEASED_LOCALES.includes(l),
 );
 
 const bounceScript = `try {
-  if (location.pathname === "${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/") {
+  if (location.pathname === "${BASE_PATH}/") {
     var locales = ${JSON.stringify(BOUNCE_LOCALES)};
-    var s = localStorage.getItem("botacourse:locale");
+    var s = localStorage.getItem(${JSON.stringify(LOCALE_PREF_KEY)});
     var target = locales.indexOf(s) !== -1
       ? s
       : !s
@@ -63,8 +65,8 @@ const bounceScript = `try {
             .filter(function (l) { return locales.indexOf(l) !== -1; })[0]
         : null;
   if (target) {
-      if (!s) localStorage.setItem("botacourse:locale", target);
-      location.replace("${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/" + target + "/");
+      if (!s) localStorage.setItem(${JSON.stringify(LOCALE_PREF_KEY)}, target);
+      location.replace("${BASE_PATH}/" + target + "/");
     }
   }
 } catch (e) {}`;

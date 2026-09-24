@@ -26,11 +26,11 @@ async function copyText(text: string): Promise<boolean> {
   try {
     // The reader may well have a passage selected — that is often WHY they are
     // copying a link to it — so put their selection back afterwards.
-    let selection = document.getSelection();
-    let previous =
+    const selection = document.getSelection();
+    const previous =
       selection && selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
 
-    let scratch = document.createElement("textarea");
+    const scratch = document.createElement("textarea");
     scratch.value = text;
     scratch.setAttribute("readonly", "");
     scratch.style.position = "fixed";
@@ -40,7 +40,7 @@ async function copyText(text: string): Promise<boolean> {
     document.body.appendChild(scratch);
     scratch.select();
     scratch.setSelectionRange(0, text.length);
-    let ok = document.execCommand("copy");
+    const ok = document.execCommand("copy");
     document.body.removeChild(scratch);
 
     if (previous && selection) {
@@ -79,7 +79,7 @@ export function CopyAnchor({
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   useEffect(() => {
-    let container = document.getElementById(containerId);
+    const container = document.getElementById(containerId);
     if (!container) return;
 
     function onClick(event: MouseEvent) {
@@ -88,20 +88,20 @@ export function CopyAnchor({
       if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
         return;
       }
-      let target = event.target as HTMLElement | null;
-      let marker = target?.closest?.(
+      const target = event.target as HTMLElement | null;
+      const marker = target?.closest?.(
         "a.anchor-link",
       ) as HTMLAnchorElement | null;
       if (!marker) return;
 
-      let hash = marker.getAttribute("href");
+      const hash = marker.getAttribute("href");
       if (!hash) return;
 
       // Synchronously, BEFORE any await: preventDefault after the handler has
       // yielded is too late — the browser has already followed the link.
       event.preventDefault();
 
-      let url = `${window.location.origin}${window.location.pathname}${hash}`;
+      const url = `${window.location.origin}${window.location.pathname}${hash}`;
 
       void copyText(url).then((copied) => {
         // Reflect the anchor in the URL without scrolling — the reader is
@@ -112,7 +112,7 @@ export function CopyAnchor({
         // Swap the inner span, not the <a>: the wrapper carries the baseline
         // metrics (see .anchor-link in typography.css) and replacing the <a>'s
         // textContent would throw the span away along with them.
-        let glyph =
+        const glyph =
           marker.querySelector<HTMLElement>(".anchor-glyph") ?? marker;
         // Remember the glyph on the element, not in a local: a second click
         // while the check is still showing would otherwise capture "✓" as the
@@ -134,7 +134,7 @@ export function CopyAnchor({
     }
 
     container.addEventListener("click", onClick);
-    let pending = timers.current;
+    const pending = timers.current;
     return () => {
       container.removeEventListener("click", onClick);
       pending.forEach(clearTimeout);

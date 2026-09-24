@@ -13,21 +13,19 @@
  * list) and takes only display fields (label, title, description,
  * unitLabel) from a translation, matched by id — a translated file's
  * structural edits are ignored with a warning, and anything missing
- * falls back to English. Same conventions as ../bota-toolbox.
+ * falls back to English. Same conventions as ../botatoolbox.
  *
  * Client components import types + pure helpers from
  * ./curriculum-helpers instead (this module touches node:fs).
  *
  * Lesson MDX lives at `content/lessons/<locale>/<section>/<NN-lesson>.mdx`
  * (the files carry a numeric reading-order prefix; lesson URL slugs use
- * the un-prefixed `id` while section URL slugs are the section `id`),
- * produced by the editorial pipeline from the OCR of the published
- * volumes and then curated by hand. The MDX files are the source of
- * truth for lesson text.
+ * the un-prefixed `id` while section URL slugs are the section `id`).
+ * The MDX files are the source of truth for lesson text: every fix is a
+ * direct edit there.
  *
- * `description` is optional and intentionally left blank for now — editorial
- * summaries can be added later, and any lesson/section that has one will show
- * it automatically.
+ * `description` is optional; any lesson/section that has one shows it
+ * automatically.
  *
  * ─────────────────────────────────────────────────────────────────────────
  * DO NOT PUBLISH — permanent exclusion (donor condition):
@@ -51,6 +49,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { DEFAULT_LOCALE, LOCALES, type Locale } from "../lib/locales.ts";
 import {
+  LESSON_DISPLAY_FIELDS,
+  SECTION_DISPLAY_FIELDS,
   lessonFileName,
   sectionDirName,
   type Lesson,
@@ -59,13 +59,8 @@ import {
 
 export * from "./curriculum-helpers.ts";
 
-// Display fields a translation may override; everything else is
-// structure, read from English only.
-const SECTION_DISPLAY = ["label", "shortLabel", "description", "unitLabel"];
-const LESSON_DISPLAY = ["title", "description", "unitLabel"];
-
 function readCurriculum(locale: string): Section[] | null {
-  let file = path.join(
+  const file = path.join(
     process.cwd(),
     "content",
     "curriculum",
@@ -82,10 +77,10 @@ function mergeDisplay<T extends object>(
   where: string,
 ): T {
   if (!translated) return en;
-  let merged: T = { ...en };
-  let record = merged as Record<string, unknown>;
-  let english = en as Record<string, unknown>;
-  for (let [key, value] of Object.entries(translated)) {
+  const merged: T = { ...en };
+  const record = merged as Record<string, unknown>;
+  const english = en as Record<string, unknown>;
+  for (const [key, value] of Object.entries(translated)) {
     if (key === "lessons" || key === "id") continue; // structure, merged separately
     if (value === english[key]) continue;
     if (!fields.includes(key)) {
@@ -106,49 +101,49 @@ function mergeDisplay<T extends object>(
 }
 
 function localizeSections(locale: Locale): Section[] {
-  let en = readCurriculum(DEFAULT_LOCALE);
+  const en = readCurriculum(DEFAULT_LOCALE);
   if (!en) throw new Error("content/curriculum/en.json is missing");
   if (locale === DEFAULT_LOCALE) return en;
 
-  let translated = readCurriculum(locale);
+  const translated = readCurriculum(locale);
   if (!translated) return en;
-  let translatedById = new Map(
+  const translatedById = new Map(
     translated.map((s) => [s.id, s as unknown as Record<string, unknown>]),
   );
 
-  let merged = en.map((section) => {
-    let t = translatedById.get(section.id);
+  const merged = en.map((section) => {
+    const t = translatedById.get(section.id);
     translatedById.delete(section.id);
-    let mergedSection = mergeDisplay(
+    const mergedSection = mergeDisplay(
       section,
       t,
-      SECTION_DISPLAY,
+      SECTION_DISPLAY_FIELDS,
       `section "${section.id}"`,
     );
-    let tLessons = new Map(
+    const tLessons = new Map(
       (Array.isArray(t?.lessons) ? (t.lessons as Lesson[]) : []).map((l) => [
         l.id,
         l as unknown as Record<string, unknown>,
       ]),
     );
-    let lessons = section.lessons.map((lesson) => {
-      let tl = tLessons.get(lesson.id);
+    const lessons = section.lessons.map((lesson) => {
+      const tl = tLessons.get(lesson.id);
       tLessons.delete(lesson.id);
       return mergeDisplay(
         lesson,
         tl,
-        LESSON_DISPLAY,
+        LESSON_DISPLAY_FIELDS,
         `lesson "${section.id}/${lesson.id}"`,
       );
     });
-    for (let id of tLessons.keys()) {
+    for (const id of tLessons.keys()) {
       console.warn(
         `[i18n] curriculum: lesson "${section.id}/${id}" doesn't exist in English — skipped`,
       );
     }
     return { ...mergedSection, lessons };
   });
-  for (let id of translatedById.keys()) {
+  for (const id of translatedById.keys()) {
     console.warn(
       `[i18n] curriculum: section "${id}" doesn't exist in English — skipped`,
     );
@@ -195,10 +190,10 @@ export function getLesson(
   sectionParam: string,
   lessonId: string,
 ): LessonWithContext | null {
-  let section = findSectionByRoute(locale, sectionParam);
+  const section = findSectionByRoute(locale, sectionParam);
   if (!section) return null;
 
-  let index = section.lessons.findIndex(({ id }) => id === lessonId);
+  const index = section.lessons.findIndex(({ id }) => id === lessonId);
   if (index === -1) return null;
 
   // Prev/next continue across section boundaries, preserving the original
@@ -206,26 +201,19 @@ export function getLesson(
   // excluded from the chain (so visible lessons never link into them) —
   // except the current lesson's own section, so that navigation still works
   // when reading a hidden section directly.
-  let flattened = sectionsFor(locale)
+  const flattened = sectionsFor(locale)
     .filter((s) => !s.hidden || s.id === section.id)
     .flatMap((section) =>
       section.lessons.map((lesson) => ({ lesson, section })),
     );
-  let flatIndex = flattened.findIndex(
+  const flatIndex = flattened.findIndex(
     ({ lesson, section: s }) => s.id === section.id && lesson.id === lessonId,
   );
-  let prev = flatIndex > 0 ? flattened[flatIndex - 1] : null;
-  let next = flatIndex < flattened.length - 1 ? flattened[flatIndex + 1] : null;
+  const prev = flatIndex > 0 ? flattened[flatIndex - 1] : null;
+  const next =
+    flatIndex < flattened.length - 1 ? flattened[flatIndex + 1] : null;
 
   return { ...section.lessons[index], section, prev, next };
-}
-
-/** Section directory name by id/route, e.g. "section-a". Structural —
- *  always resolved against the English curriculum. */
-export function sectionDirNameById(sectionId: string): string {
-  let section = findSectionByRoute(DEFAULT_LOCALE, sectionId);
-  if (!section) throw new Error(`unknown section: ${sectionId}`);
-  return sectionDirName(section);
 }
 
 /** On-disk { dir, file } (both prefixed, no extension) for a lesson by id.
@@ -234,8 +222,8 @@ export function lessonDiskPath(
   sectionParam: string,
   lessonId: string,
 ): { dir: string; file: string } {
-  let section = findSectionByRoute(DEFAULT_LOCALE, sectionParam);
-  let lesson = section?.lessons.find((l) => l.id === lessonId);
+  const section = findSectionByRoute(DEFAULT_LOCALE, sectionParam);
+  const lesson = section?.lessons.find((l) => l.id === lessonId);
   if (!section || !lesson)
     throw new Error(`unknown lesson: ${sectionParam}/${lessonId}`);
   return {
@@ -252,14 +240,36 @@ async function importLessonMdx(locale: string, dir: string, file: string) {
     .default;
 }
 
-// `locale` must be a locale whose MDX file EXISTS (the lesson page
-// checks with lessonHasText and falls back to English) — a missing
-// file would throw at import time.
+/**
+ * The locale whose transcript a lesson page should render: the page's own
+ * when a translation exists, else English (every English lesson has a file).
+ * A partial translation always ships. Same rule as pages.ts.
+ */
+export function lessonContentLocale(
+  locale: Locale,
+  sectionId: string,
+  lessonId: string,
+): Locale {
+  if (locale === DEFAULT_LOCALE) return locale;
+  const { dir, file } = lessonDiskPath(sectionId, lessonId);
+  const mdx = path.join(
+    process.cwd(),
+    "content",
+    "lessons",
+    locale,
+    dir,
+    `${file}.mdx`,
+  );
+  return fs.existsSync(mdx) ? locale : DEFAULT_LOCALE;
+}
+
+/** The compiled MDX component for a lesson. `locale` must come from
+ *  lessonContentLocale — a missing file would throw at import time. */
 export async function getLessonContent(
-  locale: string,
+  locale: Locale,
   sectionId: string,
   lessonId: string,
 ) {
-  let { dir, file } = lessonDiskPath(sectionId, lessonId);
+  const { dir, file } = lessonDiskPath(sectionId, lessonId);
   return importLessonMdx(locale, dir, file);
 }

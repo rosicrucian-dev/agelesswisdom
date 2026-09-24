@@ -9,16 +9,17 @@ import { getPageContent } from "@/data/pages";
 import { toLocale } from "@/lib/locales";
 import { t } from "@/lib/messages";
 import type { Metadata } from "next";
+import Image from "next/image";
 
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
-  let locale = toLocale((await params).locale);
+  const locale = toLocale((await params).locale);
   return {
     title: `${t(locale, "about.title")} - ${t(locale, "meta.siteTitle")}`,
-    description: "About this site",
+    description: t(locale, "about.description"),
   };
 }
 
@@ -27,8 +28,8 @@ export default async function Page({
 }: {
   params: Promise<{ locale: string }>;
 }) {
-  let locale = toLocale((await params).locale);
-  let Content = await getPageContent(locale, "about");
+  const locale = toLocale((await params).locale);
+  const Content = await getPageContent(locale, "about");
   return (
     <SidebarLayoutContent
       breadcrumbs={
@@ -43,9 +44,8 @@ export default async function Page({
         <div className="prose">
           <Content />
         </div>
-        <br/><br/>
-        <a href="https://rosicrucian.dev" className="inline-block">
-          <img
+        <a href="https://rosicrucian.dev" className="mt-12 inline-block">
+          <Image
             src="/avatar.png"
             alt="Rosicrucian Developers emblem"
             width={128}

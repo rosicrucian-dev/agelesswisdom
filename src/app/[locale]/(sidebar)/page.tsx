@@ -16,10 +16,9 @@ import { BookIcon } from "@/icons/book-icon";
 import { LessonsIcon } from "@/icons/lessons-icon";
 import { DEFAULT_LOCALE, RELEASED_LOCALES, toLocale } from "@/lib/locales";
 import { t, tf } from "@/lib/messages";
+import { SITE_NAME, SITE_URL } from "@/lib/site";
 import type { Metadata } from "next";
 import { Fragment } from "react";
-
-const SITE = "https://agelesswisdom.school";
 
 // English is served unprefixed (scripts/hoist-en.ts lifts out/en/ to the
 // root), every other locale under /<locale>/. Trailing slashes because
@@ -33,7 +32,7 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
-  let locale = toLocale((await params).locale);
+  const locale = toLocale((await params).locale);
   return {
     title: t(locale, "meta.siteTitle"),
     description: t(locale, "meta.description"),
@@ -68,8 +67,8 @@ export async function generateMetadata({
 const websiteJsonLd = {
   "@context": "https://schema.org",
   "@type": "WebSite",
-  name: "The School of Ageless Wisdom",
-  url: SITE,
+  name: SITE_NAME,
+  url: SITE_URL,
 };
 
 export default async function Page({
@@ -77,10 +76,10 @@ export default async function Page({
 }: {
   params: Promise<{ locale: string }>;
 }) {
-  let locale = toLocale((await params).locale);
-  let Intro = await getPageContent(locale, "home-intro");
-  let sections = getSections(locale);
-  let lessonCount = sections.reduce(
+  const locale = toLocale((await params).locale);
+  const Intro = await getPageContent(locale, "home-intro");
+  const sections = getSections(locale);
+  const lessonCount = sections.reduce(
     (n, s) =>
       n + s.lessons.filter((l) => unitLabelOf(s, l) !== "Supplement").length,
     0,
@@ -188,7 +187,7 @@ export default async function Page({
 
             <div className="grid grid-cols-1 gap-y-16 pb-10 sm:px-4">
               {sections.map((section, idx) => {
-                let startsAddenda =
+                const startsAddenda =
                   section.additional && !sections[idx - 1]?.additional;
                 return (
                   <Fragment key={section.id}>
@@ -214,7 +213,6 @@ export default async function Page({
                                 title={numberedLessonTitle(section, lesson)}
                                 description={lesson.description}
                                 href={lessonUrl(section, lesson)}
-                                type="article"
                               />
                             </li>
                           ))}

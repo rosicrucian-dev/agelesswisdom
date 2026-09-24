@@ -25,11 +25,11 @@
  *                they are invisible to the walk below — deliberately: they are
  *                editorial apparatus or layout, not passages to cite.
  *
- * Written down because it is a CONTRACT between two parsers. Today only the
- * web numbers blocks. If printed paragraph numbers are ever added, the print
- * renderer (scripts/print/render.ts, its own hand-rolled Markdown parser) must
- * reproduce this exact sequence — and that is also the moment to freeze the
- * numbers behind a committed manifest, since a printed citation is permanent.
+ * Written down because it is a CONTRACT. Today only the web numbers blocks:
+ * the print renderer (scripts/print/render.ts) runs this same pipeline but
+ * gives the file no path, which skips this plugin. If printed paragraph
+ * numbers are ever added, that is the moment to freeze the numbers behind a
+ * committed manifest, since a printed citation is permanent.
  *
  * ## Where the marker can live
  *
@@ -75,8 +75,13 @@ const LESSON_DIR = `${path.sep}content${path.sep}lessons${path.sep}`;
 const labels = new Map();
 function copyLabel(locale, n) {
   if (!labels.has(locale)) {
-    let file = path.join(process.cwd(), "content", "messages", `${locale}.json`);
-    let messages = JSON.parse(fs.readFileSync(file, "utf8"));
+    const file = path.join(
+      process.cwd(),
+      "content",
+      "messages",
+      `${locale}.json`,
+    );
+    const messages = JSON.parse(fs.readFileSync(file, "utf8"));
     labels.set(locale, messages["anchor.copy"] ?? "Copy link to this passage");
   }
   return labels.get(locale).replaceAll("{n}", String(n));
@@ -84,19 +89,19 @@ function copyLabel(locale, n) {
 
 export default function rehypeLessonAnchors() {
   return (tree, file) => {
-    let filePath = file?.path ?? "";
+    const filePath = file?.path ?? "";
     if (!filePath.includes(LESSON_DIR)) return;
     // content/lessons/<locale>/<section>/<file>.mdx
-    let locale = filePath.split(LESSON_DIR)[1]?.split(path.sep)[0] ?? "en";
+    const locale = filePath.split(LESSON_DIR)[1]?.split(path.sep)[0] ?? "en";
 
     let n = 0;
-    for (let node of tree.children ?? []) {
+    for (const node of tree.children ?? []) {
       if (node.type !== "element") continue;
       if (node.tagName === "section") continue; // gfm footnotes
       if (!ANCHORABLE.has(node.tagName)) continue;
 
       n += 1;
-      let id = `p${n}`;
+      const id = `p${n}`;
       node.properties = { ...node.properties };
       // Never clobber an id the pipeline already set.
       if (!node.properties.id) node.properties.id = id;

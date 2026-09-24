@@ -32,13 +32,11 @@ export function isVersionSkewError(error: unknown): boolean {
   );
 }
 
-// If `error` looks like version skew, reload once into the fresh build and
-// return true — the caller should then render a neutral "updating" state,
-// since the reload is imminent. Returns false (caller renders its normal error
-// fallback) when the error isn't skew, or when we already reloaded within the
-// guard window, meaning the error survived a reload and is a real bug rather
-// than a stale build.
-export function recoverFromVersionSkew(error: unknown): boolean {
+// Pure check, safe to call during render: does `error` look like version skew
+// that a reload would fix? False when it isn't skew, on the server, or when we
+// already reloaded within the guard window — the error survived a reload, so
+// it's a real bug and the caller should show its normal fallback.
+export function canRecoverFromVersionSkew(error: unknown): boolean {
   if (typeof window === "undefined") return false;
   if (!isVersionSkewError(error)) return false;
 
@@ -46,11 +44,16 @@ export function recoverFromVersionSkew(error: unknown): boolean {
   try {
     lastReloadAt = Number(window.sessionStorage.getItem(RELOAD_AT_KEY)) || 0;
   } catch {}
-  if (Date.now() - lastReloadAt < RELOAD_WINDOW_MS) return false;
+  return Date.now() - lastReloadAt >= RELOAD_WINDOW_MS;
+}
 
+// The side effect: stamp the guard and reload into the fresh build. Call from
+// an effect once `canRecoverFromVersionSkew` has said yes (and the component
+// is already rendering its neutral "updating" state).
+export function recoverFromVersionSkew(error: unknown): void {
+  if (!canRecoverFromVersionSkew(error)) return;
   try {
     window.sessionStorage.setItem(RELOAD_AT_KEY, String(Date.now()));
   } catch {}
   window.location.reload();
-  return true;
 }

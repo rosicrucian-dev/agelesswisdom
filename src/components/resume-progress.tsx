@@ -11,6 +11,8 @@ import { PlayIcon } from "@/icons/play-icon";
 import { useT } from "@/lib/use-t";
 import { useEffect, useSyncExternalStore } from "react";
 
+// The "botacourse:" prefix predates the site's current name and is kept so
+// readers' resume points survive (see LOCALE_PREF_KEY in lib/locales.ts).
 const STORAGE_KEY = "botacourse:last-lesson";
 
 type LastLesson = { href: string; label: string };
@@ -38,7 +40,7 @@ function readLastLesson(): LastLesson | null {
   cachedValue = null;
   if (raw) {
     try {
-      let parsed = JSON.parse(raw);
+      const parsed = JSON.parse(raw);
       if (parsed && typeof parsed.href === "string") {
         cachedValue = { href: parsed.href, label: parsed.label ?? "" };
       }
@@ -82,8 +84,8 @@ function subscribe(onChange: () => void): () => void {
  */
 export function ResumeButton({ firstHref }: { firstHref: string }) {
   const { t } = useT();
-  let last = useSyncExternalStore(subscribe, readLastLesson, () => null);
-  let resume = last && last.href !== firstHref ? last : null;
+  const last = useSyncExternalStore(subscribe, readLastLesson, () => null);
+  const resume = last && last.href !== firstHref ? last : null;
 
   return (
     <Link

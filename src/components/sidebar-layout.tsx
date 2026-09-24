@@ -21,7 +21,7 @@ import type React from "react";
 import { createContext, useContext, useState } from "react";
 import { Navbar } from "./navbar";
 
-export const SidebarContext = createContext<{
+const SidebarContext = createContext<{
   isSidebarOpen: boolean;
   setIsSidebarOpen: (isSidebarOpen: boolean) => void;
   isMobileDialogOpen: boolean;
@@ -42,7 +42,7 @@ function CourseNavigation({
   onNavigate?: () => void;
   className?: string;
 }) {
-  let pathname = usePathname();
+  const pathname = usePathname();
 
   return (
     <div className={clsx(className, "space-y-8")}>
@@ -53,8 +53,8 @@ function CourseNavigation({
           </h2>
           <ul className="mt-4 flex flex-col gap-4 border-l border-gray-950/10 text-base/7 text-gray-700 sm:mt-3 sm:gap-3 sm:text-sm/6 dark:border-white/10 dark:text-gray-400">
             {section.lessons.map((lesson) => {
-              let href = lessonUrl(section, lesson);
-              let { unit, title } = lessonTitleParts(section, lesson);
+              const href = lessonUrl(section, lesson);
+              const { unit, title } = lessonTitleParts(section, lesson);
               return (
                 <li
                   key={lesson.id}
@@ -129,8 +129,8 @@ export function SidebarLayout({
   children: React.ReactNode;
 }) {
   const { t } = useT();
-  let [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  let [isMobileDialogOpen, setIsMobileDialogOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isMobileDialogOpen, setIsMobileDialogOpen] = useState(false);
 
   return (
     <SidebarContext.Provider
@@ -181,7 +181,7 @@ export function SidebarLayoutContent({
   alwaysShowNavLinks?: boolean;
   children: React.ReactNode;
 }) {
-  let {
+  const {
     isSidebarOpen,
     setIsSidebarOpen,
     isMobileDialogOpen,

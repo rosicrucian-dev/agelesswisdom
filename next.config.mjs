@@ -15,7 +15,7 @@ const withMDX = createMDX({
 
 /**
  * Static export for GitHub Pages. BASE_PATH is set by the deploy workflow
- * when serving from a project page (e.g. /botacourse); leave it unset for
+ * when serving from a project page (e.g. /agelesswisdom); leave it unset for
  * local dev or a custom domain.
  */
 const basePath = process.env.BASE_PATH ?? "";
@@ -26,7 +26,7 @@ const nextConfig = {
   // it doesn't collect the [locale] layout's params like the build does
   // — so / (rewritten to /en/) 500s. Plain dev mode renders params on
   // demand (the [locale] layout's dynamicParams=false still 404s /fr/).
-  // Same convention as ../bota-toolbox.
+  // Same convention as ../botatoolbox.
   output: process.env.NODE_ENV === "development" ? undefined : "export",
   basePath,
   // Plain asset URLs (e.g. the lesson PDF object tag) don't get basePath
@@ -41,12 +41,12 @@ const nextConfig = {
     unoptimized: true,
   },
   // Lets verification builds target a separate dir so they don't clobber a
-  // running dev server (same convention as bota-toolbox).
+  // running dev server (same convention as botatoolbox).
   distDir: process.env.NEXT_DIST_DIR ?? ".next",
   // Allow viewing the dev server from other devices on the LAN (dev-only;
   // without this, Next blocks its scripts cross-origin and the page never
   // hydrates, so nothing interactive works). Same convention as
-  // bota-toolbox.
+  // botatoolbox.
   allowedDevOrigins: ["192.168.1.*", "localhost", "127.0.0.1"],
   // Dev-only: serve unprefixed English URLs from the /en/ tree so dev
   // matches the deployed URL shape (scripts/hoist-en.ts moves out/en/*

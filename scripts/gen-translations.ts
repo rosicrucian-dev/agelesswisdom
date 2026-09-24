@@ -1,5 +1,5 @@
 // Generates/refreshes the per-locale translation files the translator
-// edits (same conventions as ../bota-toolbox — full sibling copies,
+// edits (same conventions as ../botatoolbox — full sibling copies,
 // translate the English you see):
 //
 //   content/curriculum/<locale>.json — a FULL copy of en.json with any
@@ -21,6 +21,10 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import {
+  LESSON_DISPLAY_FIELDS,
+  SECTION_DISPLAY_FIELDS,
+} from "../src/data/curriculum-helpers.ts";
 import { DEFAULT_LOCALE, TRANSLATION_LOCALES } from "../src/lib/locales.ts";
 
 const ROOT = path.join(import.meta.dirname, "..");
@@ -43,13 +47,10 @@ function isRecord(v: unknown): v is Record<string, unknown> {
 
 // ---------- curriculum ----------
 
-const SECTION_DISPLAY = ["label", "title", "description", "unitLabel"];
-const LESSON_DISPLAY = ["title", "description", "unitLabel"];
-
 function skeletonEntry(
   en: Record<string, unknown>,
   prev: unknown,
-  fields: string[],
+  fields: readonly string[],
 ): { out: Record<string, unknown>; total: number; translated: number } {
   const out: Record<string, unknown> = { ...en };
   let total = 0;
@@ -81,7 +82,7 @@ for (const locale of TRANSLATION_LOCALES) {
   let translated = 0;
   const skeleton = enSections.map((section) => {
     const prev = prevById.get(section.id);
-    const s = skeletonEntry(section, prev, SECTION_DISPLAY);
+    const s = skeletonEntry(section, prev, SECTION_DISPLAY_FIELDS);
     total += s.total;
     translated += s.translated;
     const prevLessons = new Map(
@@ -94,7 +95,7 @@ for (const locale of TRANSLATION_LOCALES) {
         const l = skeletonEntry(
           lesson,
           prevLessons.get(lesson.id),
-          LESSON_DISPLAY,
+          LESSON_DISPLAY_FIELDS,
         );
         total += l.total;
         translated += l.translated;

@@ -3,7 +3,7 @@
 // Full-text search dialog: a HeadlessUI combobox over the prebuilt inverted
 // index in public/search-index.json (see src/lib/search.ts and
 // scripts/gen-search-index.ts). Modeled on the sister project's
-// (bota-toolbox) SearchDialog, adapted from a title index to full text.
+// (botatoolbox) SearchDialog, adapted from a title index to full text.
 // Default-exported so next/dynamic in search.tsx can lazy-load this chunk on
 // first use; the index itself is fetched only when the dialog first opens.
 
@@ -109,15 +109,15 @@ export default function SearchDialog({
   const router = useLocaleRouter();
   const { t, tf } = useT();
   const locale = useLocale();
-  let pathname = usePathname();
-  let [query, setQuery] = useState("");
+  const pathname = usePathname();
+  const [query, setQuery] = useState("");
   const { status, index, retry } = useSearchIndex<SearchIndex>(
     searchIndexUrl(locale),
   );
 
   // Close (and reset) when navigation completes — but not on mount, which
   // happens the moment the user first opens the dialog.
-  let previousPathname = useRef(pathname);
+  const previousPathname = useRef(pathname);
   useEffect(() => {
     if (pathname !== previousPathname.current) {
       previousPathname.current = pathname;

@@ -19,6 +19,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx tsc --noEmit
+      - run: npm run lint
+      - run: npx prettier --check .
       # The search engine is hand-rolled and duplicated into botatoolbox, so
       # its invariants are pinned by tests rather than by review.
       - run: npm test

@@ -23,7 +23,7 @@ async function importPageMdx(locale: string, page: string) {
 }
 
 export async function getPageContent(locale: Locale, page: string) {
-  let contentLocale =
+  const contentLocale =
     locale !== DEFAULT_LOCALE && pageExists(locale, page)
       ? locale
       : DEFAULT_LOCALE;

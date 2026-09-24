@@ -1,4 +1,4 @@
-// UI chrome translation, same conventions as ../bota-toolbox:
+// UI chrome translation, same conventions as ../botatoolbox:
 // content/messages/<locale>.json are FULL sibling files — en.json is
 // the source, translated siblings are the same file with values
 // translated in place (synced by `npm run gen:translations`). A missing

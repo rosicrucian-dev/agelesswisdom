@@ -24,7 +24,7 @@ export function BreadcrumbHome() {
       className="min-w-0 shrink-0 text-gray-950 dark:text-white"
       aria-label={t("breadcrumbs.homeLabel")}
     >
-      Home
+      {t("breadcrumbs.home")}
     </Link>
   );
 }

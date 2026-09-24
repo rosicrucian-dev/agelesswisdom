@@ -5,7 +5,7 @@
 //
 // The card is a centered title + description lockup over the zinc
 // scrollwork background — the same card style as the sister project
-// (../bota-toolbox, emerald background, light type), inverted to dark
+// (../botatoolbox, emerald background, light type), inverted to dark
 // type on the light ground. Next.js serves these automatically for the
 // matching file conventions.
 //
