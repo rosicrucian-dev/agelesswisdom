@@ -296,11 +296,14 @@
     }
   }
 
-  /* Quoted verse: hang the turnover (wrapped) lines so a run-over reads as a
-     continuation, not a new verse line — the professional poetry-setting rule.
-     Scoped via :has(br) to blockquotes that carry hard line breaks (verse),
-     leaving prose quotes (which have no <br>) flush. */
-  blockquote:has(br) p {
+  /* Quoted verse: each line starts flush and only its turnover (wrapped)
+     part hangs, so a run-over reads as a continuation, not a new verse line —
+     the professional poetry-setting rule. plugins/rehype-verse-lines.mjs puts
+     every verse line in its own .verse-line block; a hanging indent on the
+     whole paragraph would indent every line after the first. */
+  blockquote .verse-line {
+    display: block;
+    margin-top: 0;
     padding-left: 1.5em;
     text-indent: -1.5em;
   }

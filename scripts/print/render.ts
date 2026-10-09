@@ -527,10 +527,11 @@ blockquote p {
 blockquote p + p {
   margin-top: 0.14in;
 }
-/* Quoted verse: hang the turnover (wrapped) lines so a run-over reads as a
-   continuation, not a new verse line (professional poetry setting). :has(br)
-   scopes this to verse blockquotes; prose quotes carry no <br> and stay flush. */
-blockquote:has(br) p {
+/* Quoted verse: each line starts flush and only its turnover (wrapped) part
+   hangs (professional poetry setting). Same rule as the web; each line is its
+   own .verse-line block (plugins/rehype-verse-lines.mjs). */
+blockquote .verse-line {
+  display: block;
   padding-left: 1.5em;
   text-indent: -1.5em;
 }

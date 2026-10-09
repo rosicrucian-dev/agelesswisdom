@@ -30,12 +30,14 @@ export const remarkPlugins = [
   ["remark-smartypants", { dashes: "inverted", backticks: false }],
 ];
 
-/** rehype-lesson-anchors gives each top-level lesson block an id (p1, p2, …)
+/** rehype-verse-lines splits quoted verse into one block per line (see its
+ *  header); rehype-lesson-anchors gives each top-level lesson block an id (p1, p2, …)
  *  so `/section-a/the-life-power/#p12` deep-links in the static export with no
  *  client JS. The path must be ABSOLUTE: Turbopack resolves a plugin string
  *  with require.resolve from its own base, where "./plugins/…" is "Cannot find
  *  module". An absolute path is still a serializable string. */
 export const rehypePlugins = [
+  [new URL("./plugins/rehype-verse-lines.mjs", import.meta.url).pathname],
   [new URL("./plugins/rehype-lesson-anchors.mjs", import.meta.url).pathname],
 ];
 
