@@ -9,7 +9,9 @@
 import {
   TAROT_GRIDS_PER_GROUP,
   TAROT_GROUPS,
+  TAROT_UNIT,
   tarotGridNumbers,
+  tarotGroupLabel,
   type TarotGroup,
 } from "@/data/tarot-groups";
 
@@ -23,18 +25,23 @@ function MiniGrid({ group, k }: { group: TarotGroup; k: number }) {
   );
 }
 
-export function TarotGroups() {
+/** `unit` is what the edition calls one of the eight ("Group" here; the
+ *  books repository's tarot-groups.ts explains why it varies). */
+export function TarotGroups({ unit = TAROT_UNIT }: { unit?: string }) {
   return (
     <div className="tg-root">
-      {TAROT_GROUPS.map((group) => (
-        <section key={group.name} className="tg-group" aria-label={group.name}>
-          <div className="tg-label">{group.name}</div>
-          {Array.from({ length: TAROT_GRIDS_PER_GROUP }, (_, i) => (
-            <MiniGrid key={i} group={group} k={i + 1} />
-          ))}
-          <div className="tg-blank" aria-hidden="true" />
-        </section>
-      ))}
+      {TAROT_GROUPS.map((group) => {
+        const label = tarotGroupLabel(group, unit);
+        return (
+          <section key={group.ordinal} className="tg-group" aria-label={label}>
+            <div className="tg-label">{label}</div>
+            {Array.from({ length: TAROT_GRIDS_PER_GROUP }, (_, i) => (
+              <MiniGrid key={i} group={group} k={i + 1} />
+            ))}
+            <div className="tg-blank" aria-hidden="true" />
+          </section>
+        );
+      })}
     </div>
   );
 }

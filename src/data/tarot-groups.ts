@@ -8,6 +8,8 @@
 export {
   TAROT_GRIDS_PER_GROUP,
   TAROT_GROUPS,
+  TAROT_UNIT,
   tarotGridNumbers,
+  tarotGroupLabel,
   type TarotGroup,
 } from "../../content/books/print/tarot-groups.ts";
