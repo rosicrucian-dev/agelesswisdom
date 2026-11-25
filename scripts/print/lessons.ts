@@ -6,7 +6,13 @@
  *   npm run pdf:lessons -- --html-only   # skip the (slow) Chrome step; preview HTML
  *   npm run pdf:lessons -- section-a/01-the-life-power   # one lesson (by dir/file)
  *
- * Design: US Letter, restrained "refined handout" — the vendored Literata
+ * Two editions of every lesson, from one stylesheet (PAGE_FORMATS): print, on
+ * US Letter, to public/lessons/ (the lesson page's PDF button); and screen, a
+ * 6 × 8.5in page with narrow margins for reading on a tablet or computer, to
+ * public/lessons-screen/. Only the page changes; the type is the same. The
+ * books repository sets its whole books the same two ways (print/book.ts).
+ *
+ * Design: restrained "refined handout" — the vendored Literata
  * serif, a compact masthead (section · lesson eyebrow, title, hairline rule),
  * justified body, centered small-caps subheads, page number + site name in the
  * footer. No cover page, no drop cap. Reuses the shared MDX->HTML->PDF core in
@@ -14,8 +20,9 @@
  * style tweak here is a single edit + regenerate.
  *
  * Reads committed MDX from content/lessons/; writes intermediate HTML to
- * output/print/lessons/ and the PDF to public/lessons/<section>/<file>.pdf
- * (the path the lesson page checks at build time). Both are gitignored: the
+ * output/print/<edition>/ and the PDF to public/lessons/<section>/<file>.pdf
+ * (the path the lesson page checks at build time) and
+ * public/lessons-screen/<section>/<file>.pdf. Both are gitignored: the
  * Deploy workflow regenerates the PDFs before every build.
  */
 import * as fs from "node:fs";
@@ -40,14 +47,32 @@ import {
   sharedElementsCss,
 } from "./render.ts";
 
-const HTML_DIR = path.join(ROOT, "output", "print", "lessons");
-const PDF_DIR = path.join(ROOT, "public", "lessons");
+export type PageFormat = "print" | "screen";
+export const PAGE_FORMATS: readonly PageFormat[] = ["print", "screen"];
 
-export function lessonCss(): string {
+/** The page of each edition: the books repository's (print/book.ts), so a
+ *  lesson and a book from the same shelf share their page as their type. */
+const GEOMETRY: Record<PageFormat, { size: string; margin: string }> = {
+  print: { size: "8.5in 11in", margin: "1in 1.4in 0.85in" },
+  screen: { size: "6in 8.5in", margin: "0.6in 0.55in 0.7in" },
+};
+
+/** Where each edition's PDFs go, a folder per section beneath. */
+export const PDF_DIRS: Record<PageFormat, string> = {
+  print: path.join(ROOT, "public", "lessons"),
+  screen: path.join(ROOT, "public", "lessons-screen"),
+};
+const HTML_DIRS: Record<PageFormat, string> = {
+  print: path.join(ROOT, "output", "print", "lessons"),
+  screen: path.join(ROOT, "output", "print", "lessons-screen"),
+};
+
+export function lessonCss(format: PageFormat = "print"): string {
+  const page = GEOMETRY[format];
   return `${fontFaceCss()}
 @page {
-  size: 8.5in 11in;
-  margin: 1in 1.4in 0.85in;
+  size: ${page.size};
+  margin: ${page.margin};
   @bottom-center {
     content: counter(page);
     font-family: "Print Literata", "Print Hebrew", "Print Math", "Print Symbols", "Print Symbols 2", serif;
@@ -72,7 +97,8 @@ html {
   line-height: 1.5;
 }
 /* The 1px right inset is a workaround for a Chrome print-to-PDF rounding bug,
-   not a design margin. The page content box here is 5.7in = 547.2 CSS px wide;
+   not a design margin. The print page's content box is 5.7in = 547.2 CSS px wide
+   (the screen page's, 4.9in = 470.4px, is fractional the same way);
    Chrome LAYS OUT into a whole-pixel 548 but CLIPS the page at the exact
    fractional 547.2, so the last ~0.8px of anything reaching the right edge is
    cut away — visible in the PDF content stream as a border rect at x 547..548
@@ -179,7 +205,11 @@ ${mdxToHtml(withoutFirstHeading, source)}
   </div>`;
 }
 
-function lessonDocumentHtml(section: Section, lesson: Lesson): string {
+function lessonDocumentHtml(
+  section: Section,
+  lesson: Lesson,
+  format: PageFormat,
+): string {
   const { title } = lessonTitleParts(section, lesson);
   const heading = title ?? numberedLessonTitle(section, lesson);
   return `<!doctype html>
@@ -187,7 +217,7 @@ function lessonDocumentHtml(section: Section, lesson: Lesson): string {
 <head>
   <meta charset="utf-8">
   <title>${escapeHtml(heading)} — ${escapeHtml(section.label)}</title>
-  <style>${lessonCss()}</style>
+  <style>${lessonCss(format)}</style>
 </head>
 <body>
 ${lessonBodyHtml(section, lesson)}
@@ -216,15 +246,17 @@ function main() {
         continue;
       }
 
-      const htmlDir = path.join(HTML_DIR, dir);
-      fs.mkdirSync(htmlDir, { recursive: true });
-      const htmlPath = path.join(htmlDir, `${file}.html`);
-      fs.writeFileSync(htmlPath, lessonDocumentHtml(section, lesson));
+      for (const format of PAGE_FORMATS) {
+        const htmlDir = path.join(HTML_DIRS[format], dir);
+        fs.mkdirSync(htmlDir, { recursive: true });
+        const htmlPath = path.join(htmlDir, `${file}.html`);
+        fs.writeFileSync(htmlPath, lessonDocumentHtml(section, lesson, format));
 
-      if (!htmlOnly) {
-        const pdfDir = path.join(PDF_DIR, dir);
-        fs.mkdirSync(pdfDir, { recursive: true });
-        buildPdf(htmlPath, path.join(pdfDir, `${file}.pdf`));
+        if (!htmlOnly) {
+          const pdfDir = path.join(PDF_DIRS[format], dir);
+          fs.mkdirSync(pdfDir, { recursive: true });
+          buildPdf(htmlPath, path.join(pdfDir, `${file}.pdf`));
+        }
       }
       count++;
       console.log(`${htmlOnly ? "html" : "pdf "} ${key}`);
@@ -232,7 +264,7 @@ function main() {
   }
 
   console.log(
-    `\n${count} lesson ${htmlOnly ? "HTML files" : "PDFs"} written` +
+    `\n${count} lessons written, ${htmlOnly ? "HTML" : "PDF"} in each edition` +
       (skipped.length
         ? `; skipped ${skipped.length} without MDX: ${skipped.join(", ")}`
         : "."),

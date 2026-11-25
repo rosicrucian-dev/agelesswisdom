@@ -36,6 +36,7 @@ next-env.d.ts
 /output/
 /tmp/
 /public/lessons/
+/public/lessons-screen/
 /public/downloads/
 # The books repository's figures, copied in by sync:books
 /public/images/books/
