@@ -1,0 +1,37 @@
+# Verifies that the site typechecks and builds. Runs for PRs and for pushes
+# to any branch except main (main is covered by the deploy workflow).
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches-ignore:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: true # content/books, the books repository (public)
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npm run lint
+      - run: npx prettier --check .
+      - run: npm test
+      # Generate the per-lesson PDFs (headless Chrome, pinned as in deploy.yml)
+      # so the build matches production and PDF-generation breakage is caught
+      # in CI rather than at deploy.
+      - uses: browser-actions/setup-chrome@v1
+        id: chrome
+        with:
+          chrome-version: 156
+      - run: npm run pdf:lessons
+        env:
+          CHROME_BIN: ${{ steps.chrome.outputs.chrome-path }}
+      - run: npm run build

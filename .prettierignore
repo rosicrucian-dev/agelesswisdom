@@ -1,0 +1,9 @@
+# Extracted lesson text: content is curated by hand, not reformatted
+content/lessons/
+# The books repository (a submodule), its own
+content/books/
+
+# Build output
+.next/
+.next-verify/
+out/

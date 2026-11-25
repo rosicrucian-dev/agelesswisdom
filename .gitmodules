@@ -1,0 +1,3 @@
+[submodule "content/books"]
+	path = content/books
+	url = https://github.com/rosicrucian-dev/books.git

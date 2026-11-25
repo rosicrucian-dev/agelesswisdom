@@ -1,0 +1,610 @@
+{
+  "the life power": [
+    {
+      "id": "/section-first/the-life-power",
+      "phrase": 14,
+      "count": 36
+    },
+    {
+      "id": "/section-a/the-life-power",
+      "phrase": 9,
+      "count": 56
+    },
+    {
+      "id": "/section-a/the-tree-of-life",
+      "phrase": 10,
+      "count": 48
+    },
+    {
+      "id": "/section-a/twelve-channels-of-life-expression",
+      "phrase": 6,
+      "count": 50
+    },
+    {
+      "id": "/section-first/the-secret-power",
+      "phrase": 4,
+      "count": 30
+    },
+    {
+      "id": "/section-a/five-phases-of-life-expression",
+      "phrase": 2,
+      "count": 30
+    },
+    {
+      "id": "/section-c/mastership",
+      "phrase": 20,
+      "count": 80
+    },
+    {
+      "id": "/section-b/bondage",
+      "phrase": 20,
+      "count": 59
+    },
+    {
+      "id": "/section-a/an-outline-of-the-qabalah",
+      "phrase": 24,
+      "count": 106
+    },
+    {
+      "id": "/section-b/regeneration",
+      "phrase": 16,
+      "count": 60
+    }
+  ],
+  "\"the life power\"": [
+    {
+      "id": "/section-first/the-life-power",
+      "phrase": 14,
+      "count": 35
+    },
+    {
+      "id": "/section-a/the-life-power",
+      "phrase": 9,
+      "count": 53
+    },
+    {
+      "id": "/section-a/the-tree-of-life",
+      "phrase": 10,
+      "count": 48
+    },
+    {
+      "id": "/section-a/twelve-channels-of-life-expression",
+      "phrase": 6,
+      "count": 50
+    },
+    {
+      "id": "/section-first/the-secret-power",
+      "phrase": 4,
+      "count": 30
+    },
+    {
+      "id": "/section-a/five-phases-of-life-expression",
+      "phrase": 2,
+      "count": 29
+    },
+    {
+      "id": "/section-c/mastership",
+      "phrase": 20,
+      "count": 72
+    },
+    {
+      "id": "/section-a/an-outline-of-the-qabalah",
+      "phrase": 24,
+      "count": 105
+    },
+    {
+      "id": "/section-b/bondage",
+      "phrase": 20,
+      "count": 56
+    },
+    {
+      "id": "/section-b/regeneration",
+      "phrase": 16,
+      "count": 58
+    }
+  ],
+  "tree of life": [
+    {
+      "id": "/section-a/the-tree-of-life",
+      "phrase": 12,
+      "count": 51
+    },
+    {
+      "id": "/section-d/the-great-arcanum",
+      "phrase": 6,
+      "count": 25
+    },
+    {
+      "id": "/hermetic-alchemy/the-three-principles",
+      "phrase": 6,
+      "count": 39
+    },
+    {
+      "id": "/section-c/watchful-introspection",
+      "phrase": 5,
+      "count": 28
+    },
+    {
+      "id": "/section-c/the-perfect-stone",
+      "phrase": 3,
+      "count": 26
+    },
+    {
+      "id": "/section-c/evolution-of-homo-spiritualis",
+      "phrase": 4,
+      "count": 27
+    },
+    {
+      "id": "/section-d/magical-instruments-and-vestments",
+      "phrase": 3,
+      "count": 19
+    },
+    {
+      "id": "/section-a/correlation-of-sound-and-color",
+      "phrase": 3,
+      "count": 19
+    },
+    {
+      "id": "/section-c/the-true-creative-self",
+      "phrase": 3,
+      "count": 26
+    },
+    {
+      "id": "/section-c/practice-of-concentration",
+      "phrase": 3,
+      "count": 12
+    }
+  ],
+  "tarot": [
+    {
+      "id": "/section-first/the-object-of-tarot-practice",
+      "phrase": 14,
+      "count": 14
+    },
+    {
+      "id": "/section-second/tarot-groups",
+      "phrase": 8,
+      "count": 8
+    },
+    {
+      "id": "/hermetic-alchemy/the-alchemical-process-4",
+      "phrase": 22,
+      "count": 22
+    },
+    {
+      "id": "/hermetic-alchemy/the-alchemical-process-2",
+      "phrase": 20,
+      "count": 20
+    },
+    {
+      "id": "/section-first/cosmic-consciousness",
+      "phrase": 16,
+      "count": 16
+    },
+    {
+      "id": "/section-c/qabalistic-meditation",
+      "phrase": 16,
+      "count": 16
+    },
+    {
+      "id": "/hermetic-alchemy/the-alchemical-process-1",
+      "phrase": 17,
+      "count": 17
+    },
+    {
+      "id": "/hermetic-alchemy/the-three-principles",
+      "phrase": 17,
+      "count": 17
+    },
+    {
+      "id": "/section-c/evolution-of-homo-spiritualis",
+      "phrase": 14,
+      "count": 14
+    },
+    {
+      "id": "/hermetic-alchemy/the-alchemical-process-3",
+      "phrase": 16,
+      "count": 16
+    }
+  ],
+  "key 0": [
+    {
+      "id": "/section-second/the-hidden-force",
+      "phrase": 4,
+      "count": 9
+    },
+    {
+      "id": "/section-second/tableau-2",
+      "phrase": 2,
+      "count": 83
+    },
+    {
+      "id": "/section-second/tableau-15",
+      "phrase": 1,
+      "count": 29
+    },
+    {
+      "id": "/section-first/the-life-power",
+      "phrase": 1,
+      "count": 17
+    },
+    {
+      "id": "/section-second/tableau-20",
+      "phrase": 2,
+      "count": 35
+    },
+    {
+      "id": "/section-second/the-true-magic",
+      "phrase": 2,
+      "count": 10
+    },
+    {
+      "id": "/section-second/tableau-12",
+      "phrase": 1,
+      "count": 20
+    },
+    {
+      "id": "/section-second/tableau-13",
+      "phrase": 1,
+      "count": 18
+    },
+    {
+      "id": "/hermetic-alchemy/the-alchemical-process-1",
+      "phrase": 1,
+      "count": 16
+    },
+    {
+      "id": "/hermetic-alchemy/the-alchemical-process-4",
+      "phrase": 1,
+      "count": 44
+    }
+  ],
+  "lesson 12": [
+    {
+      "id": "/section-second/tableau-10",
+      "phrase": 1,
+      "count": 10
+    },
+    {
+      "id": "/section-first/response",
+      "phrase": 1,
+      "count": 2
+    },
+    {
+      "id": "/section-second/tableau-11",
+      "phrase": 1,
+      "count": 10
+    },
+    {
+      "id": "/section-second/tableau-12",
+      "phrase": 0,
+      "count": 9
+    },
+    {
+      "id": "/section-second/tableau-9",
+      "phrase": 0,
+      "count": 16
+    },
+    {
+      "id": "/section-first/reversal",
+      "phrase": 0,
+      "count": 15
+    },
+    {
+      "id": "/section-b/bondage",
+      "phrase": 0,
+      "count": 17
+    },
+    {
+      "id": "/section-d/platonic-solids",
+      "phrase": 0,
+      "count": 21
+    },
+    {
+      "id": "/section-second/tableau-5",
+      "phrase": 0,
+      "count": 13
+    },
+    {
+      "id": "/section-second/tableau-13",
+      "phrase": 0,
+      "count": 12
+    }
+  ],
+  "subconsciousness": [
+    {
+      "id": "/section-a/the-three-principles",
+      "phrase": 23,
+      "count": 23
+    },
+    {
+      "id": "/section-a/the-seven-forces",
+      "phrase": 10,
+      "count": 10
+    },
+    {
+      "id": "/section-c/mastership",
+      "phrase": 9,
+      "count": 9
+    },
+    {
+      "id": "/section-d/the-chaldean-oracles",
+      "phrase": 5,
+      "count": 5
+    },
+    {
+      "id": "/section-first/sub-consciousness",
+      "phrase": 4,
+      "count": 4
+    },
+    {
+      "id": "/section-a/twelve-channels-of-life-expression",
+      "phrase": 5,
+      "count": 5
+    },
+    {
+      "id": "/section-d/magical-instruments-and-vestments",
+      "phrase": 5,
+      "count": 5
+    },
+    {
+      "id": "/section-a/the-wisdom-alphabet",
+      "phrase": 6,
+      "count": 6
+    },
+    {
+      "id": "/section-d/the-magical-altar",
+      "phrase": 4,
+      "count": 4
+    },
+    {
+      "id": "/section-c/watchful-introspection",
+      "phrase": 4,
+      "count": 4
+    }
+  ],
+  "Tiphareth": [
+    {
+      "id": "/section-a/the-tree-of-life",
+      "phrase": 20,
+      "count": 20
+    },
+    {
+      "id": "/section-c/watchful-introspection",
+      "phrase": 8,
+      "count": 8
+    },
+    {
+      "id": "/section-d/magical-instruments-and-vestments",
+      "phrase": 8,
+      "count": 8
+    },
+    {
+      "id": "/section-c/the-perfect-stone",
+      "phrase": 6,
+      "count": 6
+    },
+    {
+      "id": "/section-a/an-outline-of-the-qabalah",
+      "phrase": 9,
+      "count": 9
+    },
+    {
+      "id": "/section-d/the-great-arcanum",
+      "phrase": 2,
+      "count": 2
+    },
+    {
+      "id": "/section-d/the-magical-altar",
+      "phrase": 2,
+      "count": 2
+    },
+    {
+      "id": "/section-c/mastership",
+      "phrase": 2,
+      "count": 2
+    },
+    {
+      "id": "/section-c/evolution-of-homo-spiritualis",
+      "phrase": 2,
+      "count": 2
+    },
+    {
+      "id": "/section-c/the-true-creative-self",
+      "phrase": 2,
+      "count": 2
+    }
+  ],
+  "tiferet": [],
+  "color": [
+    {
+      "id": "/section-b/a-note-on-color",
+      "phrase": 32,
+      "count": 32
+    },
+    {
+      "id": "/section-a/correlation-of-sound-and-color",
+      "phrase": 83,
+      "count": 83
+    },
+    {
+      "id": "/section-d/magical-instruments-and-vestments",
+      "phrase": 20,
+      "count": 20
+    },
+    {
+      "id": "/hermetic-alchemy/the-first-matter-continued",
+      "phrase": 17,
+      "count": 17
+    },
+    {
+      "id": "/section-a/the-tree-of-life",
+      "phrase": 12,
+      "count": 12
+    },
+    {
+      "id": "/section-c/qabalistic-meditation",
+      "phrase": 12,
+      "count": 12
+    },
+    {
+      "id": "/section-first/the-object-of-tarot-practice",
+      "phrase": 8,
+      "count": 8
+    },
+    {
+      "id": "/section-a/five-phases-of-life-expression",
+      "phrase": 10,
+      "count": 10
+    },
+    {
+      "id": "/section-first/discrimination",
+      "phrase": 7,
+      "count": 7
+    },
+    {
+      "id": "/section-c/evolution-of-homo-spiritualis",
+      "phrase": 9,
+      "count": 9
+    }
+  ],
+  "colours": [
+    {
+      "id": "/hermetic-alchemy/the-first-matter-continued",
+      "phrase": 2,
+      "count": 2
+    },
+    {
+      "id": "/section-b/a-note-on-color",
+      "phrase": 1,
+      "count": 1
+    },
+    {
+      "id": "/hermetic-alchemy/the-first-matter",
+      "phrase": 1,
+      "count": 1
+    }
+  ],
+  "occult": [
+    {
+      "id": "/section-second/tableau-20",
+      "phrase": 17,
+      "count": 17
+    },
+    {
+      "id": "/section-first/reversal",
+      "phrase": 11,
+      "count": 11
+    },
+    {
+      "id": "/section-second/tableau-11",
+      "phrase": 11,
+      "count": 11
+    },
+    {
+      "id": "/section-second/tableau-19",
+      "phrase": 11,
+      "count": 11
+    },
+    {
+      "id": "/section-a/the-wisdom-alphabet",
+      "phrase": 16,
+      "count": 16
+    },
+    {
+      "id": "/section-a/symbolism-of-numbers",
+      "phrase": 13,
+      "count": 13
+    },
+    {
+      "id": "/section-second/tableau-17",
+      "phrase": 10,
+      "count": 10
+    },
+    {
+      "id": "/section-second/tableau-16",
+      "phrase": 9,
+      "count": 9
+    },
+    {
+      "id": "/section-a/five-phases-of-life-expression",
+      "phrase": 11,
+      "count": 11
+    },
+    {
+      "id": "/section-second/the-hidden-force",
+      "phrase": 8,
+      "count": 8
+    }
+  ],
+  "\"first matter\"": [
+    {
+      "id": "/hermetic-alchemy/the-first-matter",
+      "phrase": 53,
+      "count": 141
+    },
+    {
+      "id": "/hermetic-alchemy/the-first-matter-continued",
+      "phrase": 33,
+      "count": 79
+    },
+    {
+      "id": "/hermetic-alchemy/the-alchemical-process-1",
+      "phrase": 8,
+      "count": 28
+    },
+    {
+      "id": "/hermetic-alchemy/water",
+      "phrase": 6,
+      "count": 34
+    },
+    {
+      "id": "/hermetic-alchemy/the-three-principles",
+      "phrase": 5,
+      "count": 26
+    },
+    {
+      "id": "/hermetic-alchemy/what-alchemy-really-is",
+      "phrase": 6,
+      "count": 22
+    },
+    {
+      "id": "/hermetic-alchemy/the-alchemical-process-4",
+      "phrase": 3,
+      "count": 21
+    },
+    {
+      "id": "/section-a/twelve-channels-of-life-expression",
+      "phrase": 2,
+      "count": 12
+    },
+    {
+      "id": "/section-a/the-life-power",
+      "phrase": 1,
+      "count": 19
+    },
+    {
+      "id": "/hermetic-alchemy/the-alchemical-process-3",
+      "phrase": 1,
+      "count": 17
+    }
+  ],
+  "ב": [
+    {
+      "id": "/section-a/the-wisdom-alphabet",
+      "phrase": 2,
+      "count": 2
+    },
+    {
+      "id": "/section-d/the-secret-force",
+      "phrase": 1,
+      "count": 1
+    },
+    {
+      "id": "/section-d/the-magic-circle",
+      "phrase": 1,
+      "count": 1
+    }
+  ],
+  "and": []
+}

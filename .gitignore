@@ -1,0 +1,41 @@
+# Dependencies
+/node_modules
+
+# Next.js build output
+/.next/
+/.next-verify/
+/out/
+
+# The editorial workspace lives OUTSIDE this repo (../agelesswisdom-editorial).
+# Rule kept so that a stray copy under this name can never be staged.
+/editorial/
+
+# Only lesson .mdx belongs in content/; editorial artifacts can never be staged.
+/content/**/*.changes.json
+/content/excluded-lessons.json
+/content/source-fidelity.baseline.json
+/content/README.md
+
+# Local AI-assistant guidance
+CLAUDE.md
+.claude/
+
+# Misc
+.DS_Store
+*.pem
+npm-debug.log*
+.env*
+*.tsbuildinfo
+next-env.d.ts
+
+# Generated on every build by scripts/gen-search-index.ts (one per locale)
+/public/search-index.*.json
+/public/search/
+
+# Generated print/PDF artifacts (scripts/print/*, run by the Deploy workflow)
+/output/
+/tmp/
+/public/lessons/
+/public/downloads/
+# The books repository's figures, copied in by sync:books
+/public/images/books/

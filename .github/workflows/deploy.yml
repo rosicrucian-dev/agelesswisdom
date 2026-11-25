@@ -1,0 +1,63 @@
+# Builds the static export and deploys it to GitHub Pages on every push to
+# main. The site is served from the custom apex domain agelesswisdom.school
+# (see public/CNAME), so it lives at the site root and BASE_PATH stays unset.
+# If the site ever moves back to a project page (username.github.io/<repo>),
+# restore `BASE_PATH: /${{ github.event.repository.name }}` on the build step.
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: true # content/books, the books repository (public)
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      # Per-lesson PDFs are derived from the MDX and generated here (not
+      # committed) so they ship in the static export. Headless Chrome, pinned:
+      # an older Chrome embeds every web font as a Type 3 copy (the books
+      # repository's workflow found 131 did, 156 does not).
+      - uses: browser-actions/setup-chrome@v1
+        id: chrome
+        with:
+          chrome-version: 156
+      - run: npm run pdf:lessons
+        env:
+          CHROME_BIN: ${{ steps.chrome.outputs.chrome-path }}
+      # Zip those PDFs into public/downloads/all-lessons.zip (the texts as
+      # whole books are the books repository's releases). Also derived, not
+      # committed. Must run after pdf:lessons.
+      - run: npm run pdf:bundles
+      - run: npm run build
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

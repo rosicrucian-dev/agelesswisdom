@@ -1,0 +1,69 @@
+{
+  "name": "agelesswisdom",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "predev": "npm run sync:books",
+    "prebuild": "npm run gen:search && npm run sync:books",
+    "postbuild": "npm run hoist:en && npm run gen:redirects && npm run gen:sw",
+    "hoist:en": "node --experimental-strip-types scripts/hoist-en.ts",
+    "gen:redirects": "node --experimental-strip-types scripts/gen-redirects.ts",
+    "gen:sw": "node --experimental-strip-types scripts/gen-sw.ts",
+    "verify:build": "npm run gen:search && npm run sync:books && NEXT_DIST_DIR=.next-verify next build",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test 'test/**/*.test.ts'",
+    "lint": "eslint",
+    "format": "prettier --write .",
+    "gen:translations": "node --experimental-strip-types scripts/gen-translations.ts",
+    "gen:search": "node --experimental-strip-types scripts/gen-search-index.ts",
+    "sync:books": "node --experimental-strip-types scripts/sync-books.ts",
+    "pdf:lessons": "node --experimental-strip-types scripts/print/lessons.ts",
+    "pdf:bundles": "node --experimental-strip-types scripts/print/bundles.ts",
+    "gen:favicon": "node --experimental-strip-types scripts/gen-favicon.ts",
+    "gen:appicon": "node --experimental-strip-types scripts/gen-appicon.ts",
+    "gen:splash": "node --experimental-strip-types scripts/gen-splash.ts",
+    "gen:social": "node --experimental-strip-types scripts/gen-social.ts",
+    "bench:search": "node --experimental-strip-types scripts/bench-search.ts"
+  },
+  "dependencies": {
+    "@headlessui/react": "^2.2.10",
+    "@mdx-js/loader": "^3.1.0",
+    "@mdx-js/react": "^3.1.0",
+    "@next/mdx": "16.2.6",
+    "@rosicrucian/search": "https://github.com/rosicrucian-dev/packages/releases/download/search@0.1.0/rosicrucian-search-0.1.0.tgz",
+    "@tailwindcss/postcss": "^4.3.3",
+    "clsx": "^2.1.1",
+    "next": "16.2.6",
+    "postcss": "^8.5.6",
+    "react": "19.2.6",
+    "react-dom": "19.2.6",
+    "remark-gfm": "^4.0.0",
+    "remark-smartypants": "^3.0.3",
+    "tailwindcss": "^4.3.3"
+  },
+  "devDependencies": {
+    "@mdx-js/mdx": "^3.1.1",
+    "@types/mdx": "^2.0.13",
+    "@types/node": "^24.1.0",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "16.2.6",
+    "hast-util-to-html": "^9.0.5",
+    "prettier": "^3.8.3",
+    "prettier-plugin-organize-imports": "^4.3.0",
+    "prettier-plugin-tailwindcss": "^0.8.0",
+    "typescript": "^5.8.3",
+    "vfile": "^6.0.3"
+  },
+  "overrides": {
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3"
+  }
+}
