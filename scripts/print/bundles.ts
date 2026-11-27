@@ -3,11 +3,10 @@
  * per edition of the lessons (lessons.ts):
  *   public/downloads/all-lessons.zip         the print edition (US Letter)
  *   public/downloads/all-lessons-screen.zip  the screen edition
- * each holding every per-lesson PDF of its edition: core sections
- *                                        under school-of-ageless-wisdom/sections/,
- *                                        the separately-published "Additional
- *                                        Material" under its own top-level
- *                                        additional-material/ folder.
+ * each holding every per-lesson PDF of the School's curriculum in that
+ * edition, under school-of-ageless-wisdom/sections/. Sections marked
+ * `additional` in the curriculum (separately-published material, such as
+ * the hidden Seven Stages) are left out: the archive is the School alone.
  *
  * The School's lessons as one whole-book PDF (in both editions) is the books
  * repository's release, which the About page links; they are not merged here any more.
@@ -58,22 +57,13 @@ function collectSections(pdfDir: string): Grouped[] {
   return groups;
 }
 
-/** zip of the per-lesson PDFs, staged into two top-level folders:
- *    school-of-ageless-wisdom/sections/<section>/NN-title.pdf   (core)
- *    additional-material/<section>/NN-title.pdf                 (separate)
- *  so the archive reads as the School of Ageless Wisdom curriculum plus a
- *  clearly-distinct set of separately-published material. */
-function buildZip(
-  pdfDir: string,
-  zip: string,
-  core: Grouped[],
-  additional: Grouped[],
-) {
+/** zip of the per-lesson PDFs, staged as
+ *    school-of-ageless-wisdom/sections/<section>/NN-title.pdf */
+function buildZip(pdfDir: string, zip: string, core: Grouped[]) {
   fs.mkdirSync(OUT_DIR, { recursive: true });
   fs.rmSync(zip, { force: true }); // zip appends to an existing archive otherwise
   const stage = fs.mkdtempSync(path.join(os.tmpdir(), "zip-"));
   try {
-    const topDirs: string[] = [];
     for (const g of core) {
       fs.cpSync(
         path.join(pdfDir, g.section.id),
@@ -81,16 +71,9 @@ function buildZip(
         { recursive: true },
       );
     }
-    if (core.length) topDirs.push("school-of-ageless-wisdom");
-    for (const g of additional) {
-      fs.cpSync(
-        path.join(pdfDir, g.section.id),
-        path.join(stage, "additional-material", g.section.id),
-        { recursive: true },
-      );
-    }
-    if (additional.length) topDirs.push("additional-material");
-    execFileSync("zip", ["-r", "-q", "-X", zip, ...topDirs], { cwd: stage });
+    execFileSync("zip", ["-r", "-q", "-X", zip, "school-of-ageless-wisdom"], {
+      cwd: stage,
+    });
   } finally {
     fs.rmSync(stage, { recursive: true, force: true });
   }
@@ -100,19 +83,16 @@ function main() {
   for (const format of PAGE_FORMATS) {
     const pdfDir = PDF_DIRS[format];
     const zip = zipPath(format);
-    const groups = collectSections(pdfDir);
-    const core = groups.filter((g) => !g.section.additional);
-    const additional = groups.filter((g) => g.section.additional);
-    const lessonTotal = groups.reduce((n, g) => n + g.lessons.length, 0);
+    const core = collectSections(pdfDir).filter((g) => !g.section.additional);
+    const lessonTotal = core.reduce((n, g) => n + g.lessons.length, 0);
     if (!lessonTotal) {
       throw new Error(
         `no lesson PDFs found in ${path.relative(process.cwd(), pdfDir)} — run \`npm run pdf:lessons\` first`,
       );
     }
-    buildZip(pdfDir, zip, core, additional);
-    const coreTotal = core.reduce((n, g) => n + g.lessons.length, 0);
+    buildZip(pdfDir, zip, core);
     console.log(
-      `bundled ${lessonTotal} lessons (${coreTotal} core + ${lessonTotal - coreTotal} additional): ${path.relative(process.cwd(), zip)}`,
+      `bundled ${lessonTotal} lessons: ${path.relative(process.cwd(), zip)}`,
     );
   }
 }

@@ -47,8 +47,8 @@ export type Section = {
   hidden?: boolean;
   /**
    * Marks material published separately by Paul Foster Case, outside the core
-   * School of Ageless Wisdom curriculum. The download zip files these under
-   * its own additional-material/ folder. Structural (read from English only).
+   * School of Ageless Wisdom curriculum. The download zips leave these out
+   * (scripts/print/bundles.ts). Structural (read from English only).
    */
   additional?: boolean;
   lessons: Lesson[];
