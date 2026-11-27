@@ -185,6 +185,7 @@ export default async function Page({
         </p>
 
         <p className="mt-6 text-base/7 text-gray-700 dark:text-gray-300">
+          {t(locale, "volume.download")}{" "}
           <a href={pdfs.screen} className={link}>
             {t(locale, "volume.pdfScreen")}
           </a>
