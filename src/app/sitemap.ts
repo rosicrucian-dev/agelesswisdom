@@ -1,6 +1,7 @@
 import { type MetadataRoute } from "next";
 
 import { getSections, lessonUrl } from "@/data/curriculum";
+import { VOLUMES, volumePath } from "@/data/volumes";
 import { DEFAULT_LOCALE, RELEASED_LOCALES, type Locale } from "@/lib/locales";
 import { SITE_URL } from "@/lib/site";
 
@@ -40,6 +41,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   return [
     ...staticRoutes,
+    ...VOLUMES.map((volume) => `${volumePath(volume)}/`),
     ...getSections(DEFAULT_LOCALE).flatMap((section) =>
       section.lessons.map((lesson) => `${lessonUrl(section, lesson)}/`),
     ),

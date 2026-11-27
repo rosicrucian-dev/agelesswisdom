@@ -38,9 +38,21 @@
   "search.loading": "Loading the index…",
   "search.noPhrase": "No lesson contains the exact phrase “{query}”.",
   "search.noResults": "No lessons mention “{query}”.",
-  "search.placeholder": "Search the lessons...",
   "search.outdated": "Search was updated.",
+  "search.placeholder": "Search the lessons...",
   "search.reload": "Reload the page to use it.",
   "search.retry": "Retry",
-  "search.unavailable": "Search is unavailable right now."
+  "search.unavailable": "Search is unavailable right now.",
+  "volume.and": "{a} and {b}",
+  "volume.author": "Author",
+  "volume.contents": "Lessons",
+  "volume.course": "Part of",
+  "volume.courseValue": "{part} of the School of Ageless Wisdom",
+  "volume.intro": "{title} is {part} of the School of Ageless Wisdom, the course of lessons Paul Foster Case wrote for his students. It was previously published in print under this title. The lessons are free to read here, and to download as a PDF.",
+  "volume.lessonCount": "Lessons",
+  "volume.metaDescription": "{title} by Paul Foster Case, free as a PDF for screens and for printing: {part} of the School of Ageless Wisdom.",
+  "volume.metaTitle": "{title} by Paul Foster Case (PDF)",
+  "volume.pdfPrint": "PDF for printing",
+  "volume.pdfScreen": "PDF for screens",
+  "volume.printedAs": "Previously published as"
 }
